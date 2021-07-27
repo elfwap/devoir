@@ -13,8 +13,8 @@
 		}
 	},
 	"name" : "elfwap/devoir",
-	"type" : "project",
-	"description" : "Devoir PHP Framework",
+	"type" : "library",
+	"description" : "Devoir PHP Framework core module.",
 	"license" : "MIT",
 	"require" : {
 		"php" : ">=7.4"
