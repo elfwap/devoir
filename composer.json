@@ -1,8 +1,12 @@
 {
 	"keywords" : [
 		"Devoir",
-		"DV",
-		"Dev"
+		"Dev",
+		"DVL",
+		"library",
+		"libraries",
+		"lib",
+		"libs"
 	],
 	"autoload" : {
 		"psr-4" : {
@@ -10,7 +14,11 @@
 		},
 		"psr-0" : {
 			"Devoir\\" : "src"
-		}
+		},
+		"files" : [
+			"functions.php",
+			"constants.php"
+		]
 	},
 	"name" : "elfwap/devoir",
 	"type" : "library",
@@ -28,6 +36,7 @@
 		}
 	],
 	"support" : {
-		"email" : "elftech.inc@gmail.com"
+		"email" : "elftech.inc@gmail.com",
+		"source" : "https://github.com/elftwap/devoir/"
 	}
 }
