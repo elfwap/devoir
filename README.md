@@ -1,2 +1,2 @@
 # devoir
-Devoir PHP Framework core module. 
+Devoir PHP Framework core library. 
