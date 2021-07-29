@@ -1,2 +1,0 @@
-- name: Codeception Action
-  uses: joelwmale/codeception-action@1.0.0
