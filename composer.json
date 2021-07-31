@@ -1,45 +1,44 @@
 {
-    "keywords": [
-        "Devoir",
-        "Dev",
-        "DVL",
-        "library",
-        "libraries",
-        "lib",
-        "libs"
-    ],
-    "autoload": {
-        "psr-4": {
-            "Devoir\\": "src"
-        },
-        "psr-0": {
-            "Devoir\\": "src"
-        },
-        "files": [
-            "src/functions.php",
-            "src/constants.php"
-        ]
-    },
-    "name": "elfwap/devoir",
-    "type": "library",
-    "description": "Devoir PHP Framework core library.",
-    "license": "MIT",
-    "require": {
-        "php": ">=7.4",
-        "codeception/module-phpbrowser": "^1.0.0",
-        "codeception/module-asserts": "^1.0.0"
-    },
-    "minimum-stability": "beta",
-    "authors": [
-        {
-            "name": "Muhammad Tahir Abdullahi",
-            "email": "muhammedtahirabdullahi@gmail.com",
-            "homepage": "https://github.com/elfwap",
-            "role": "Developer"
-        }
-    ],
-    "support": {
-        "email": "elftech.inc@gmail.com",
-        "source": "https://github.com/elftwap/devoir/"
-    }
+	"keywords" : [
+		"Devoir",
+		"Dev",
+		"DVL",
+		"library",
+		"libraries",
+		"lib",
+		"libs"
+	],
+	"autoload" : {
+		"psr-4" : {
+			"Devoir\\" : "src"
+		},
+		"psr-0" : {
+			"Devoir\\" : "src"
+		},
+		"files" : [
+			"src/functions.php",
+			"src/constants.php"
+		]
+	},
+	"name" : "elfwap/devoir",
+	"type" : "library",
+	"description" : "Devoir PHP Framework core library.",
+	"license" : "MIT",
+	"require" : {
+		"php" : ">=7.4",
+		"codeception/module-phpbrowser" : "^1.0.0",
+		"codeception/module-asserts" : "^1.0.0"
+	},
+	"minimum-stability" : "beta",
+	"authors" : [{
+			"name" : "Muhammad Tahir Abdullahi",
+			"email" : "muhammedtahirabdullahi@gmail.com",
+			"homepage" : "https://github.com/elfwap",
+			"role" : "Developer"
+		}
+	],
+	"support" : {
+		"email" : "elftech.inc@gmail.com",
+		"source" : "https://github.com/elftwap/devoir/"
+	}
 }
