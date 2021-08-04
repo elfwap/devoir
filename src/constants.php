@@ -48,3 +48,9 @@ if(!defined('MIL_MONTH'))
 	define('MIL_MONTH', 2592000000);
 if(!defined('MIL_YEAR'))
 	define('MIL_YEAR', 31536000000);
+if(!defined('DEFAULT_CONTROLLER')){
+	define('DEFAULT_CONTROLLER', 'AppController');
+}
+if (!defined('DEFAULT_ACTION')) {
+	define('DEFAULT_ACTION', 'index');
+}
