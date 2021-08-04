@@ -3,6 +3,7 @@ namespace Devoir\Exception;
 
 use \Throwable;
 use \Exception;
+use \ReflectionClass;
 
 /**
  *
@@ -27,13 +28,10 @@ class DevoirException extends Exception
 	protected $code = 0;
 
 	/**
-	 *
+	 * 
 	 * @param mixed $message
-	 *            [optional]
-	 * @param mixed $code
-	 *            [optional]
-	 * @param mixed $previous
-	 *            [optional]
+	 * @param int $code
+	 * @param Throwable $previous
 	 */
 	public function __construct($message = null, ?int $code = null, ?Throwable $previous = null)
 	{
@@ -96,7 +94,7 @@ class DevoirException extends Exception
 	 * @return \Devoir\Exception\DevoirException
 	 */
 	public static function newInstance() {
-		return DevoirException::class;
+		return (new ReflectionClass(DevoirException::class))->newInstance();
 	}
 }
 
