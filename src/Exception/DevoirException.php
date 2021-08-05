@@ -35,12 +35,13 @@ class DevoirException extends Exception
 	 */
 	public function __construct($message = null, ?int $code = null, ?Throwable $previous = null)
 	{
+		$code = (!is_null($code))? $code : $this->code;
 		if(is_string($message) && strlen($message) > 0){
-			$message = sprintf($this->template, $message);
 			parent::__construct($message, $code, $previous);
 		}
 		if(is_null($message)){
-			$message = sprintf($this->template, "Exception thrown without message.");
+			$message = sprintf($this->template, "Exception thrown with missing message.");
+			parent::__construct($message, $code, $previous);
 		}
 		if (is_array($message)) {
 			$message = vsprintf($this->template, $message);
@@ -90,6 +91,7 @@ class DevoirException extends Exception
 		$this->__construct($message, $this->code, $previous);
 		return $this;
 	}
+	
 	/**
 	 * @return \Devoir\Exception\DevoirException
 	 */
