@@ -43,7 +43,7 @@ class MissingControllerException extends DevoirException
 	 * @return \Devoir\Exception\MissingControllerException
 	 */
 	public static function newInstance($message, ?int $code = null, ?Throwable $previous = null) {
-		return (new ReflectionClass(MissingControllerException::class))->newInstance($message, $code, $previous);
+		return (new ReflectionClass(MissingControllerException::class))->newInstanceArgs([$message, $code, $previous]);
 	}
 }
 

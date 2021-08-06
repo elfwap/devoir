@@ -43,7 +43,7 @@ class MissingActionException extends DevoirException
 	 * @return \Devoir\Exception\MissingActionException
 	 */
 	public static function newInstance($message, ?int $code = null, ?Throwable $previous = null) {
-		return (new ReflectionClass(MissingActionException::class))->newInstance($message, $code, $previous);
+		return (new ReflectionClass(MissingActionException::class))->newInstanceArgs([$message, $code, $previous]);
 	}
 }
 

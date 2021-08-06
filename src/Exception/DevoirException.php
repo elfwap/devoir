@@ -95,8 +95,8 @@ class DevoirException extends Exception
 	/**
 	 * @return \Devoir\Exception\DevoirException
 	 */
-	public static function newInstance() {
-		return (new ReflectionClass(DevoirException::class))->newInstance();
+	public static function newInstance($message, ?int $code = null, ?Throwable $previous = null) {
+		return (new ReflectionClass(DevoirException::class))->newInstanceArgs([$message, $code, $previous]);
 	}
 }
 
