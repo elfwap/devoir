@@ -85,7 +85,13 @@ class Controller extends Devoir implements ControllerInterface
 	protected function Ancestors():array
 	{
 		$parent = parent::Ancestors();
-		array_push($parent, static::class);
+		array_push($parent, Controller::class);
 		return $parent;
+	}
+	public function getAncestors():array
+	{
+		$ancest = $this->Ancestors();
+		array_pop($ancest);
+		return $ancest;
 	}
 }
