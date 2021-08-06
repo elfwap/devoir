@@ -16,3 +16,8 @@ if(!function_exists("isView")){
 		return is_a($component, 'View');
 	}
 }
+if(!function_exists("isDevoir")){
+	function isDevoir($component) {
+		return is_a($component, 'Devoir');
+	}
+}

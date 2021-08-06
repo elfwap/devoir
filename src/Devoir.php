@@ -13,23 +13,25 @@ namespace Devoir;
 
 class Devoir
 {
-    // TODO - Insert your code here
-
     /**
      */
     public function __construct()
     {
-
-        // TODO - Insert your code here
     }
 
     /**
      */
     function __destruct()
     {
-
-        // TODO - Insert your code here
     }
-    
+    /**
+     * Returns array of ancestral classes
+     * starting from the first super class to the immediate parent class
+     * @return array
+     */
+    protected function Ancestors():array
+    {
+    	return [Devoir::class];
+    }
 }
 
