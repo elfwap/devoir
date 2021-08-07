@@ -63,3 +63,12 @@ if(!defined('MISSING_CONTROLLER_EXCEPTION_CODE')){
 if(!defined('MISSING_ACTION_EXCEPTION_CODE')){
 	define('MISSING_ACTION_EXCEPTION_CODE', 1003);
 }
+if(!defined('BASE_PATH')){
+	define('BASE_PATH', "/");
+}
+if(!defined('URL_TYPE_QUERY')){
+	define('URL_TYPE_QUERY', 2000);
+}
+if(!defined('URL_TYPE_SLASH')){
+	define('URL_TYPE_SLASH', 2001);
+}

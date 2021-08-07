@@ -2,6 +2,8 @@
 namespace Devoir;
 
 use \ReflectionClass;
+use Devoir\Exception\MissingControllerException;
+use Devoir\Exception\MissingActionException;
 
 /**
  *
@@ -17,18 +19,64 @@ class Controller extends Devoir implements ControllerInterface
 
 	protected $controller = DEFAULT_CONTROLLER;
 	protected $action = DEFAULT_ACTION;
-	protected $basePath;
+	protected $basePath = BASE_PATH;
 	protected $controllerParams = array();
 	protected $viewVars = array();
+	protected $urlType = URL_TYPE_SLASH;
 
 	/**
+	 * 
+	 * @param mixed $controller
+	 * @param string $action
+	 * @param array $params
 	 */
-	public function __construct()
+	public function __construct($controller = null, $action = null, ?array $params = array())
 	{
-
-		// TODO - Insert your code here
+		if(is_string($controller)){
+			$this->setController($controller);
+		}
+		elseif(is_array($controller) && !empty($controller)){
+			if(array_key_exists('controller', $controller)){
+				$this->setController($controller['controller']);
+			}
+			elseif(array_key_exists('Controller', $controller)){
+				$this->setController($controller['Controller']);
+			}
+			else{
+				@list($controller, $action, $params) = $controller;
+				$this->setController($controller);
+			}
+			if(array_key_exists('action', $controller)){
+				$this->setAction($controller['action']);
+			}
+			elseif(array_key_exists('Action', $controller)){
+				$this->setAction($controller['Action']);
+			}
+			else{
+				@list($controller, $action, $params) = $controller;
+				$this->setAction($action);
+			}
+			if(array_key_exists('params', $controller)){
+				$this->setParams($controller['params']);
+			}
+			elseif(array_key_exists('Params', $controller)){
+				$this->setParams($controller['Params']);
+			}
+			else{
+				@list($controller, $action, $params) = $controller;
+				$this->setParams($params);
+			}
+		}
+		if(!is_null($action)){
+			$this->setAction($action);
+		}
+		if(is_array($params) && !empty($params)){
+			$this->setParams($params);
+		}
 	}
-
+	public function init(){
+		$this->parseURI();
+	}
 	/**
 	 */
 	function __destruct()
@@ -66,6 +114,13 @@ class Controller extends Devoir implements ControllerInterface
 
 	public function setController($controllerName)
 	{
+		if($pos = strpos($controllerName, 'Controller')){
+			$controllerName = substr($controllerName, 0, $pos);
+		}
+		$controllerName = ucfirst(strtolower($controllerName)) . "Controller";
+		if (!class_exists($controllerName)) {
+			throw new MissingControllerException([$controllerName]);
+		}
 		$this->controller = $controllerName;
 		return $this;
 	}
@@ -77,17 +132,47 @@ class Controller extends Devoir implements ControllerInterface
 	public static function newInstance() {
 		return (new ReflectionClass(Controller::class))->newInstance();
 	}
+	protected function parseURI(){
+		$path = "";
+		if($this->urlType == URL_TYPE_SLASH){
+			$path = trim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), "/");
+		}
+		if($this->urlType == URL_TYPE_QUERY){
+			$path = trim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_QUERY), "/");
+		}
+		$path = preg_replace('/[^a-zA-Z0-9]//', "", $path);
+		if (strpos($path, $this->basePath) === 0) {
+			$path = substr($path, strlen($this->basePath));
+		}
+		@list($controller, $action, $params) = explode('/', $path, 3);
+		if(isset($controller)){
+			$this->setController($controller);
+		}
+		if(isset($action)){
+			$this->setAction($action);
+		}
+		else{
+			$this->setAction(DEFAULT_ACTION);
+		}
+		if(isset($params)){
+			$this->setParams(explode("/", $params));
+		}
+	}
 	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Devoir\Devoir::Ancestors()
 	 */
-	protected function Ancestors():array
+	protected function Ancestors()
 	{
 		$parent = parent::Ancestors();
 		array_push($parent, Controller::class);
 		return $parent;
 	}
+	/**
+	 * 
+	 * @return array
+	 */
 	public function getAncestors():array
 	{
 		$ancest = $this->Ancestors();
