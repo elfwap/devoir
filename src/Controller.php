@@ -118,7 +118,10 @@ class Controller extends Devoir implements ControllerInterface
 			$controllerName = substr($controllerName, 0, $pos);
 		}
 		$controllerName = ucfirst(strtolower($controllerName)) . "Controller";
-		if (!class_exists($controllerName)) {
+		if(file_exists($this->basePath . $controllerName . '.php')){
+			echo $this->basePath . $controllerName . '.php';
+		}
+		if (!class_exists($this->basePath . $controllerName . '.php')) {
 			throw new MissingControllerException([$controllerName]);
 		}
 		$this->controller = $controllerName;
@@ -129,8 +132,8 @@ class Controller extends Devoir implements ControllerInterface
 	{
 		
 	}
-	public static function newInstance() {
-		return (new ReflectionClass(Controller::class))->newInstance();
+	public static function newInstance($controller = null, $action = null, ?array $params = array()) {
+		return (new ReflectionClass(Controller::class))->newInstanceArgs([$controller, $action, $params]);
 	}
 	protected function parseURI(){
 		$path = "";
@@ -140,10 +143,11 @@ class Controller extends Devoir implements ControllerInterface
 		if($this->urlType == URL_TYPE_QUERY){
 			$path = trim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_QUERY), "/");
 		}
-		$path = preg_replace('/[^a-zA-Z0-9]//', "", $path);
+		$path = preg_replace('/[^a-zA-Z0-9]\//', "", $path);
 		if (strpos($path, $this->basePath) === 0) {
 			$path = substr($path, strlen($this->basePath));
 		}
+		echo $path;
 		@list($controller, $action, $params) = explode('/', $path, 3);
 		if(isset($controller)){
 			$this->setController($controller);
@@ -163,7 +167,7 @@ class Controller extends Devoir implements ControllerInterface
 	 * {@inheritDoc}
 	 * @see \Devoir\Devoir::Ancestors()
 	 */
-	protected function Ancestors()
+	protected function Ancestors():array
 	{
 		$parent = parent::Ancestors();
 		array_push($parent, Controller::class);

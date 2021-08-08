@@ -20,7 +20,7 @@ class DevoirException extends Exception
 	 * 
 	 * @var string	Template for formatting exception message
 	 */
-	protected $template  = 'Devoir Exception: %s';
+	protected $template  = '%s';
 	/**
 	 * 
 	 * @var integer	excetion code

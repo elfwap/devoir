@@ -26,7 +26,7 @@ class MissingControllerException extends DevoirException
 	 */
 	public function __construct($message, ?int $code = null, ?Throwable $previous = null)
 	{
-		$this->template = "MissingControllerException: Controller `%s` is Not found.";
+		$this->template = "Controller `%s` is Not found.";
 		$this->code = MISSING_CONTROLLER_EXCEPTION_CODE;
 		parent::__construct($message, $code, $previous);
 	}

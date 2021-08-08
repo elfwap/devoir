@@ -63,8 +63,20 @@ if(!defined('MISSING_CONTROLLER_EXCEPTION_CODE')){
 if(!defined('MISSING_ACTION_EXCEPTION_CODE')){
 	define('MISSING_ACTION_EXCEPTION_CODE', 1003);
 }
+if(!defined('DS')){
+	define('DS', DIRECTORY_SEPARATOR);
+}
 if(!defined('BASE_PATH')){
-	define('BASE_PATH', "/");
+	define('BASE_PATH', "");
+}
+if(!defined('CONTROLLERS_PATH')){
+	define('CONTROLLERS_PATH', BASE_PATH . DS . "controllers" . DS);
+}
+if(!defined('MODELS_PATH')){
+	define('MODELS_PATH', BASE_PATH .DS . "models" . DS);
+}
+if(!defined('VIEWS_PATH')){
+	define('VIEWS_PATH', BASE_PATH . DS . "views" . DS);
 }
 if(!defined('URL_TYPE_QUERY')){
 	define('URL_TYPE_QUERY', 2000);
