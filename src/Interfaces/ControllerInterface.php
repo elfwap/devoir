@@ -1,5 +1,5 @@
 <?php
-namespace Devoir;
+namespace Devoir\Interfaces;
 
 /**
  *
@@ -14,13 +14,35 @@ interface ControllerInterface
 {
 	/**
 	 * 
-	 * @param mixed $controllerName
+	 * @param string $controllerName
+	 * @return object
 	 */
 	public function setController($controllerName);
+	/**
+	 * 
+	 * @param string $actionName
+	 * @return object
+	 */
 	public function setAction($actionName);
+	/**
+	 * 
+	 * @param array $params
+	 * @return object
+	 */
 	public function setParams(?array $params);
+	/**
+	 * 
+	 * @param mixed $params
+	 * @return object
+	 */
 	public function setViewVar($params);
+	/**
+	 * @return array
+	 */
 	public function getViewVars();
+	/**
+	 * @return object
+	 */
 	public function run();
 }
 

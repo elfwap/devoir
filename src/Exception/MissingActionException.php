@@ -26,11 +26,14 @@ class MissingActionException extends DevoirException
 	 */
 	public function __construct($message, ?int $code = null, ?Throwable $previous = null)
 	{
-		if(is_array($message) && count($message) <> 2){
-			throw new DevoirException("Array argument must contain two items. `" . count($message) . "` given.");
+		if(is_array($message) && count($message) > 3){
+			throw new DevoirException("Array argument must contain two (2) or three (3) items. `" . count($message) . "` given.");
 		}
-		$this->template = "Method `%s` of Controller `%s` is Not found.";
+		$this->template = "Method `%s` of Controller `%s` not found.";
 		$this->code = MISSING_ACTION_EXCEPTION_CODE;
+		if(is_array($message) && count($message) == 3){
+			$this->template .= " Additional info: %s.";
+		}
 		parent::__construct($message, $code, $previous);
 	}
 	

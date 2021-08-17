@@ -48,6 +48,9 @@ if(!defined('MIL_MONTH'))
 	define('MIL_MONTH', 2592000000);
 if(!defined('MIL_YEAR'))
 	define('MIL_YEAR', 31536000000);
+if(!defined('APPLICATION_NAMESPACE')){
+	define('APPLICATION_NAMESPACE', 'App\\');
+}
 if(!defined('DEFAULT_CONTROLLER')){
 	define('DEFAULT_CONTROLLER', 'AppController');
 }
@@ -66,17 +69,40 @@ if(!defined('MISSING_ACTION_EXCEPTION_CODE')){
 if(!defined('DS')){
 	define('DS', DIRECTORY_SEPARATOR);
 }
+if(!defined('ROOT_PATH')){
+	define('ROOT_PATH', $_SERVER['DOCUMENT_ROOT']);
+}
 if(!defined('BASE_PATH')){
-	define('BASE_PATH', "");
+	$a = str_replace(ROOT_PATH, "", dirname(__FILE__));
+	$a = str_replace('\/', DS, $a);
+	$a = trim($a, DS);
+	$b = 0;
+	$a = str_replace('vendor' . DS . 'elfwap' . DS . 'devoir' . DS . 'src', "", $a, $b);
+	if($b < 1) 
+		define('BASE_PATH', "");
+	else
+		define('BASE_PATH', $a);
+}
+else{
+	define('BASE_PATH', str_replace('\/', DS, BASE_PATH));
 }
 if(!defined('CONTROLLERS_PATH')){
-	define('CONTROLLERS_PATH', BASE_PATH . DS . "controllers" . DS);
+	define('CONTROLLERS_PATH', (empty(BASE_PATH) ? BASE_PATH : (BASE_PATH . DS)) . "Controllers" . DS);
+}
+else{
+	define('CONTROLLERS_PATH', str_replace('\/', DS, CONTROLLERS_PATH));
 }
 if(!defined('MODELS_PATH')){
-	define('MODELS_PATH', BASE_PATH .DS . "models" . DS);
+	define('MODELS_PATH', (empty(BASE_PATH) ? BASE_PATH : (BASE_PATH . DS)) . "Models" . DS);
+}
+else{
+	define('MODELS_PATH', str_replace('\/', DS, MODELS_PATH));
 }
 if(!defined('VIEWS_PATH')){
-	define('VIEWS_PATH', BASE_PATH . DS . "views" . DS);
+	define('VIEWS_PATH', (empty(BASE_PATH) ? BASE_PATH : (BASE_PATH . DS)) . "Views" . DS);
+}
+else{
+	define('VIEWS_PATH', str_replace('\/', DS, VIEWS_PATH));
 }
 if(!defined('URL_TYPE_QUERY')){
 	define('URL_TYPE_QUERY', 2000);
