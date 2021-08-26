@@ -1,55 +1,40 @@
 <?php
 namespace Devoir;
 
-if (!defined('YES')) {
-    define('YES', true);
-}
-if (!defined('Yes')) {
-    define('Yes', true);
-}
-if (!defined('yes')) {
-    define('yes', true);
-}
-if (!defined('NO')) {
-    define('NO', false);
-}
-if (!defined('No')) {
-    define('No', false);
-}
-if (!defined('no')) {
-    define('no', false);
-}
-
-if(!defined('SEC_SECOND'))
-    define('SEC_SECOND', 1);
-if(!defined('SEC_MINUTE'))
-    define('SEC_MINUTE', 60);
-if(!defined('SEC_HOUR'))
-    define('SEC_HOUR', 3600);
-if(!defined('SEC_DAY'))
-    define('SEC_DAY', 86400);
-if(!defined('SEC_WEEK'))
-    define('SEC_WEEK', 604800);
-if(!defined('SEC_MONTH'))
-    define('SEC_MONTH', 2592000);
-if(!defined('SEC_YEAR'))
-    define('SEC_YEAR', 31536000);
-if(!defined('MIL_SECOND'))
-	define('MIL_SECOND', 1000);
-if(!defined('MIL_MINUTE'))
-	define('MIL_MINUTE', 60000);
-if(!defined('MIL_HOUR'))
-	define('MIL_HOUR', 3600000);
-if(!defined('MIL_DAY'))
-	define('MIL_DAY', 86400000);
-if(!defined('MIL_WEEK'))
-	define('MIL_WEEK', 604800000);
-if(!defined('MIL_MONTH'))
-	define('MIL_MONTH', 2592000000);
-if(!defined('MIL_YEAR'))
-	define('MIL_YEAR', 31536000000);
+//MISC CONSTANTS
+if (!defined('YES')) define('YES', true);
+if (!defined('Yes')) define('Yes', true);
+if (!defined('yes')) define('yes', true);
+if (!defined('NO')) define('NO', false);
+if (!defined('No')) define('No', false);
+if (!defined('no')) define('no', false);
+#TIME
+if (!defined('SEC_SECOND')) define('SEC_SECOND', 1);
+if (!defined('SEC_MINUTE')) define('SEC_MINUTE', 60);
+if(!defined('SEC_HOUR')) define('SEC_HOUR', 3600);
+if(!defined('SEC_DAY')) define('SEC_DAY', 86400);
+if(!defined('SEC_WEEK')) define('SEC_WEEK', 604800);
+if(!defined('SEC_MONTH')) define('SEC_MONTH', 2592000);
+if(!defined('SEC_YEAR')) define('SEC_YEAR', 31536000);
+if(!defined('MIL_SECOND')) define('MIL_SECOND', 1000);
+if(!defined('MIL_MINUTE')) define('MIL_MINUTE', 60000);
+if(!defined('MIL_HOUR')) define('MIL_HOUR', 3600000);
+if(!defined('MIL_DAY')) define('MIL_DAY', 86400000);
+if(!defined('MIL_WEEK')) define('MIL_WEEK', 604800000);
+if(!defined('MIL_MONTH')) define('MIL_MONTH', 2592000000);
+if(!defined('MIL_YEAR')) define('MIL_YEAR', 31536000000);
+//APPLICATION PROPERTIES
 if(!defined('APPLICATION_NAMESPACE')){
 	define('APPLICATION_NAMESPACE', 'App\\');
+}
+if(!defined('CONTROLLERS_NAMESPACE')){
+	define('CONTROLLERS_NAMESPACE', APPLICATION_NAMESPACE . 'Controllers\\');
+}
+if(!defined('MODELS_NAMESPACE')){
+	define('MODELS_NAMESPACE', APPLICATION_NAMESPACE . 'Models\\');
+}
+if(!defined('VIEWS_NAMESPACE')){
+	define('VIEWS_NAMESPACE', APPLICATION_NAMESPACE . 'Views\\');
 }
 if(!defined('DEFAULT_CONTROLLER')){
 	define('DEFAULT_CONTROLLER', 'AppController');
@@ -57,21 +42,15 @@ if(!defined('DEFAULT_CONTROLLER')){
 if (!defined('DEFAULT_ACTION')) {
 	define('DEFAULT_ACTION', 'index');
 }
-if(!defined('DEVOIR_EXCEPTION_CODE')){
-	define('DEVOIR_EXCEPTION_CODE', 1001);
-}
-if(!defined('MISSING_CONTROLLER_EXCEPTION_CODE')){
-	define('MISSING_CONTROLLER_EXCEPTION_CODE', 1002);
-}
-if(!defined('MISSING_ACTION_EXCEPTION_CODE')){
-	define('MISSING_ACTION_EXCEPTION_CODE', 1003);
-}
-if(!defined('DS')){
-	define('DS', DIRECTORY_SEPARATOR);
-}
-if(!defined('ROOT_PATH')){
-	define('ROOT_PATH', $_SERVER['DOCUMENT_ROOT']);
-}
+//EXCEPTION CODES
+define('DEVOIR_EXCEPTION_CODE', 1001);
+define('MISSING_CONTROLLER_EXCEPTION_CODE', 1002);
+define('MISSING_ACTION_EXCEPTION_CODE', 1003);
+define('EVENT_LISTENER_EXCEPTION_CODE', 1004);
+define('MISSING_INHERITANCE_EXCEPTION_CODE', 1005);
+//PATHS
+define('DS', DIRECTORY_SEPARATOR);
+define('ROOT_PATH', $_SERVER['DOCUMENT_ROOT']);
 if(!defined('BASE_PATH')){
 	$a = str_replace(ROOT_PATH, "", dirname(__FILE__));
 	$a = str_replace('\/', DS, $a);
@@ -104,9 +83,112 @@ if(!defined('VIEWS_PATH')){
 else{
 	define('VIEWS_PATH', str_replace('\/', DS, VIEWS_PATH));
 }
-if(!defined('URL_TYPE_QUERY')){
-	define('URL_TYPE_QUERY', 2000);
-}
-if(!defined('URL_TYPE_SLASH')){
-	define('URL_TYPE_SLASH', 2001);
-}
+//URL CONFIG
+define('URL_TYPE_QUERY', 2000);
+define('URL_TYPE_SLASH', 2001);
+//RESPOSNSE CODES
+#1XX
+define('RESPOSNSE_CODE_CONTINUE', 100);
+define('RESPOSNSE_CODE_SWITCHING_PROTOCOLS', 101);
+define('RESPOSNSE_CODE_PROCESSING', 102);
+define('RESPOSNSE_CODE_EARLY_HINTS', 103);
+//Caching Warning Codes
+define('RESPOSNSE_CODE_STALE', 110);
+define('RESPOSNSE_CODE_REVALIDATION_FAILED', 111);
+define('RESPOSNSE_CODE_DISCONNECTED_OPERATION', 112);
+define('RESPOSNSE_CODE_MISC_WARNING', 199);
+#2XX
+define('RESPOSNSE_CODE_OK', 200);
+define('RESPOSNSE_CODE_CREATED', 201);
+define('RESPOSNSE_CODE_ACCEPTED', 202);
+define('RESPOSNSE_CODE_NON_AUTHORATATIVE_INFO', 203);
+define('RESPOSNSE_CODE_NO_CONTENT', 204);
+define('RESPOSNSE_CODE_RESET_CONTENT', 205);
+define('RESPOSNSE_CODE_PARTIAL_CONTENT', 206);
+define('RESPOSNSE_CODE_MULTI_STATUS', 207);
+define('RESPOSNSE_CODE_ALREADY_REPORTED', 208);
+//Caching Warning Codes
+define('RESPOSNSE_CODE_TRANSFORMATION_APPLIED', 214);
+define('RESPOSNSE_CODE_MISC_PERSITENT_WARNING', 299);
+define('RESPOSNSE_CODE_INSTANCE_MANIPULATIONS_USED', 226);
+#3XX
+define('RESPOSNSE_CODE_MULTIPLE_CHOICES', 300);
+define('RESPOSNSE_CODE_MOVED_PERMANENTLY', 301);
+define('RESPOSNSE_CODE_MOVED_TEMPORARILY', 302);
+define('RESPOSNSE_CODE_SEE_OTHER', 303);
+define('RESPOSNSE_CODE_NOT_MODIFIED', 304);
+define('RESPOSNSE_CODE_USE_PROXY', 305);
+define('RESPOSNSE_CODE_SWITCH_PROXY', 306);
+define('RESPOSNSE_CODE_TEMPORARY_REDIRECT', 307);
+define('RESPOSNSE_CODE_PERMANENT_REDIRECT', 308);
+#4XX
+define('RESPOSNSE_CODE_BAD_REQUEST', 400);
+define('RESPOSNSE_CODE_UNAUTHORIZED', 401);
+define('RESPOSNSE_CODE_PAYMENT_REQUIRED', 402);
+define('RESPOSNSE_CODE_FORBIDDEN', 403);
+define('RESPOSNSE_CODE_NOT_FOUND', 404);
+define('RESPOSNSE_CODE_METHOD_NOT_ALLOWED', 405);
+define('RESPOSNSE_CODE_NOT_ACCEPTABLE', 406);
+define('RESPOSNSE_CODE_PROXY_AUTHENTICATION_REQUIRED', 407);
+define('RESPOSNSE_CODE_REQUEST_TIMEOUT', 408);
+define('RESPOSNSE_CODE_CONFLICT', 409);
+define('RESPOSNSE_CODE_GONE', 410);
+define('RESPOSNSE_CODE_LENGTH_REQUIRED', 411);
+define('RESPOSNSE_CODE_PRECONDITION_FAILED', 412);
+define('RESPOSNSE_CODE_PAYLOAD_TOO_LARGE', 413);
+define('RESPOSNSE_CODE_URI_TOO_LONG', 414);
+define('RESPOSNSE_CODE_UNSUPPORTED_MEDIA_TYPE', 415);
+define('RESPOSNSE_CODE_RANGE_NOT_SATISFIABLE', 416);
+define('RESPOSNSE_CODE_EXPECTATION_FAILED', 417);
+define('RESPOSNSE_CODE_TEAPOT', 418);
+define('RESPOSNSE_CODE_MISDIRECTED_REQUEST', 421);
+define('RESPOSNSE_CODE_UNPROCESSABLE_ENTITY', 422);
+define('RESPOSNSE_CODE_LOCKED', 423);
+define('RESPOSNSE_CODE_FAILED_DEPENDENCY', 424);
+define('RESPOSNSE_CODE_TOO_EARLY', 425);
+define('RESPOSNSE_CODE_UPGRADE_REQUIRED', 426);
+define('RESPOSNSE_CODE_PRECONDITION_REQUIRED', 428);
+define('RESPOSNSE_CODE_TOO_MANY_REQUESTS', 429);
+define('RESPOSNSE_CODE_REQUEST_HEADER_FIELDS_TOO_LARGE', 431);
+define('RESPOSNSE_CODE_UNAVAILABLE_FOR_LEGAL_REASONS', 451);
+#5XX
+define('RESPOSNSE_CODE_INTERNAL_SERVER_ERROR', 500);
+define('RESPOSNSE_CODE_NOT_IMPLEMENTED', 501);
+define('RESPOSNSE_CODE_BAD_GATEWAY', 502);
+define('RESPOSNSE_CODE_SERVICE_UNAVAILABLE', 503);
+define('RESPOSNSE_CODE_GATEWAY_TIMEOUT', 504);
+define('RESPOSNSE_CODE_HTTP_VERSION_NOT_SUPPORTED', 505);
+define('RESPOSNSE_CODE_VARIANT_ALSO_NEGOTIATES', 506);
+define('RESPOSNSE_CODE_INSUFFICIENT_STORAGE', 507);
+define('RESPOSNSE_CODE_LOOP_DETECTED', 508);
+define('RESPOSNSE_CODE_NOT_EXTENDED', 510);
+define('RESPOSNSE_CODE_NETWORK_AUTHENTICATION_REQUIRED', 511);
+#UN-OFFICIAL CODES
+/**
+ * 
+ * Resumable requests proposal to resume aborted PUT or POST requests
+ * @var int
+ */
+define('RESPOSNSE_CODE_CHECKPOINT', 103);
+# Apache Web Server
+define('RESPOSNSE_CODE_THIS_IS_FINE', 218);
+#IIS
+define('RESPOSNSE_CODE_LOGIN_TIMEOUT', 440);
+define('RESPOSNSE_CODE_RETRY_WITH', 449);
+define('RESPOSNSE_CODE_REDIRECT', 451);
+#NGINX
+define('RESPOSNSE_CODE_NO_RESPONSE', 444);
+define('RESPOSNSE_CODE_REQUEST_HEADER_TOO_LARGE', 494);
+define('RESPOSNSE_CODE_SSL_CERTIFICATE_ERROR', 495);
+define('RESPOSNSE_CODE_SSL_CERTIFICATE_REQUIRED', 496);
+define('RESPOSNSE_CODE_HTTP_REQUEST_SENT_TO_HTTPS_PORT', 497);
+define('RESPOSNSE_CODE_CLIENT_CLOSED_REQUEST', 499);
+//EVENTS CONSTANTS
+define('EVENT_ON_INITIALIZE', 'onInitialize');
+define('EVENT_ON_TERMINATE', 'onTerminate');
+define('EVENT_CONTROLLER_BEFORE_RUNUP', 'beforeRunUp');
+define('EVENT_CONTROLLER_AFTER_RUNUP', 'afterRunUp');
+define('EVENT_CONTROLLER_BEFORE_DISPATCH', 'beforeDispatch');
+define('EVENT_CONTROLLER_AFTER_DISPATCH', 'afterDispatch');
+define('EVENT_CONTROLLER_BEFORE_MANIFEST', 'beforeManifest');
+define('EVENT_CONTROLLER_AFTER_MANIFEST', 'afterManifest');

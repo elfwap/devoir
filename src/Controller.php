@@ -2,10 +2,15 @@
 namespace Devoir;
 
 use \ReflectionClass;
+use \ReflectionFunction;
+use \Closure;
 use Devoir\Exception\MissingControllerException;
 use Devoir\Exception\MissingActionException;
 use Devoir\Interfaces\ControllerInterface;
 use Devoir\Interfaces\ControllerEventInterface;
+use Devoir\Interfaces\DevoirEventInterface;
+use Devoir\Exception\EventListenerException;
+use Devoir\Exception\MissingInheritanceException;
 
 /**
  *
@@ -27,7 +32,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * Fully-qualified controller's name
 	 * @var string
 	 */
-	private $fqController = "Devoir\\Controller\\" . DEFAULT_CONTROLLER;
+	private $fqController = CONTROLLERS_NAMESPACE . DEFAULT_CONTROLLER;
 	/**
 	 * 
 	 * @var string
@@ -53,7 +58,16 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * @var string
 	 */
 	protected $urlType = URL_TYPE_SLASH;
-
+	/**
+	 * 
+	 * @var array
+	 */
+	protected array $_eventListeners = array();
+	/**
+	 * 
+	 * @var boolean
+	 */
+	private bool $stoppedPropagation = false;
 	/**
 	 * 
 	 * @param mixed $controller
@@ -105,23 +119,24 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		if(is_array($params) && !empty($params)){
 			$this->setParams($params);
 		}
+		$this->initialize();
 	}
 	/**
 	 * @return null
 	 */
-	public function init(){
+	protected final function initialize(){
+		$this->registerListener(EVENT_ON_INITIALIZE, EVENT_ON_INITIALIZE);
+		$this->registerListener(EVENT_ON_TERMINATE, EVENT_ON_TERMINATE);
+		$this->registerListener(EVENT_CONTROLLER_BEFORE_RUNUP, EVENT_CONTROLLER_BEFORE_RUNUP);
+		$this->registerListener(EVENT_CONTROLLER_AFTER_RUNUP, EVENT_CONTROLLER_AFTER_RUNUP);
+		$this->registerListener(EVENT_CONTROLLER_BEFORE_DISPATCH, EVENT_CONTROLLER_BEFORE_DISPATCH);
+		$this->registerListener(EVENT_CONTROLLER_AFTER_DISPATCH, EVENT_CONTROLLER_AFTER_DISPATCH);
 		if($this->controller == DEFAULT_CONTROLLER){
 			$this->parseURI();
 		}
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Devoir\Devoir::__destruct()
-	 */
-	function __destruct()
-	{
-		$this->terminate();
+		if(class_exists($this->fqController)){
+			$this->dispatchEvent(EVENT_ON_INITIALIZE);
+		}
 	}
 	/**
 	 * 
@@ -169,7 +184,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public function run()
 	{
-		
+		$this->dispatchEvent(EVENT_CONTROLLER_BEFORE_RUNUP);
+		// TODO: run up
+		$this->dispatchEvent(EVENT_CONTROLLER_AFTER_RUNUP);
 	}
 	/**
 	 * 
@@ -183,15 +200,19 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		}
 		$controllerName = ucfirst(strtolower($controllerName)) . "Controller";
 		$filename = rtrim(CONTROLLERS_PATH, DS) . DS . $controllerName . '.php';
+		$classname = CONTROLLERS_NAMESPACE . $controllerName;
 		if (!file_exists($filename)) {
 			throw new MissingControllerException([$controllerName, "File [" . $filename . "] not found"]);
 		}
-		$classname = trim(APPLICATION_NAMESPACE, '\\') . '\\Controllers\\' . $controllerName;
 		if (!class_exists($classname)) {
 			throw new MissingControllerException([$controllerName, "Class [" . $classname . "] not found"]);
 		}
 		else {
+			$this->controller = $controllerName;
 			$this->fqController = $classname;
+		}
+		if(!isController($classname)){
+			throw new MissingInheritanceException([$classname, self::class]);
 		}
 		return $this;
 	}
@@ -205,8 +226,8 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$this->controllerParams = $params;
 		return $this;
 	}
-	public static function newInstance($controller = null, $action = null, ?array $params = array()) {
-		return (new ReflectionClass(Controller::class))->newInstanceArgs([$controller, $action, $params]);
+	public static final function newInstance($controller = null, $action = null, ?array $params = array()) {
+		return (new ReflectionClass(self::class))->newInstanceArgs([$controller, $action, $params]);
 	}
 	/**
 	 * Parses URI to generate objects for Controllers and Action methods.
@@ -253,7 +274,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	protected function Ancestors():array
 	{
 		$parent = parent::Ancestors();
-		array_push($parent, Controller::class);
+		array_push($parent, self::class);
 		return $parent;
 	}
 	/**
@@ -266,47 +287,183 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		array_pop($ancest);
 		return $ancest;
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ControllerEventInterface::onInitialize()
+	 */
+	public function onInitialize(DevoirEventInterface $event)
+	{
+		echo 'init';
+		$event->terminate();
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\DevoirEventInterface::onTerminate()
+	 */
+	public function onTerminate(DevoirEventInterface $event)
+	{
+		echo 'term';
+	}
+	public final function isPropagationStopped(): bool
+	{
+		return $this->stoppedPropagation;
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\DevoirEventInterface::registerListener()
+	 */
+	public final function registerListener($event, $callback, $object = null)
+	{
+		$this->_eventListeners[$event][] = ['callback' => $callback, 'object' => $object];
+		return $this;
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\DevoirEventInterface::getListenersForEvent()
+	 */
+	public final function getListenersForEvent($event): iterable
+	{
+		return $this->_eventListeners[$event] ?? [];
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\DevoirEventInterface::dispatchEvent()
+	 */
+	public final function dispatchEvent($event)
+	{
+		$listeners = $this->getListenersForEvent($event) ?? [];
+		$exceptions = array();
+		foreach ($listeners as $listener) {
+			if(is_string($listener['callback']) && is_null($listener['object'])){
+				if(!in_array($listener['callback'], $this->getImplementedListeners())){
+					$exceptions[] = [$event, $listener['callback'], $this->fqController, "Callback not Implemented"];
+				}
+				if(class_exists($this->fqController)){
+					$reflect = new ReflectionClass($this->fqController);
+					if(!$reflect->hasMethod($listener['callback'])){
+						$exceptions[] = [$event, $listener['callback'], $this->fqController, "Callback function not found"];
+					}
+					else{
+						call_user_func_array([$this->fqController, $listener['callback']], [$this]);
+					}
+				}
+				else{
+					$exceptions[] = [$event, $listener['callback'], $this->fqController, "Class not found"];
+				}
+			}
+			elseif(is_callable($listener['callback']) && is_null($listener['object'])){
+				$reflect = new ReflectionFunction($listener['callback']);
+				$reflect->invokeArgs([$this]);
+			}
+			elseif(is_callable($listener['callback']) && (is_object($listener['object']) || is_string($listener['object']))){
+				$closure = Closure::fromCallable($listener['callback']);
+				if(is_object($listener['object'])) $closure->call($listener['object'], $this);
+				elseif(is_string($listener['object'])){
+					if($listener['object'] == self::class){
+						$reflect = new ReflectionFunction($listener['callback']);
+						$exceptions[] = [$event, $reflect->getName(), self::class, "Cannot use `" . self::class . "` as closure class."];
+					}
+					else{
+						$closure->call((new $listener['object']), $this);
+					}
+				}
+			}
+			elseif(is_string($listener['callback']) && (is_object($listener['object']) || is_string($listener['object']))){
+				$reflect = new ReflectionClass($listener['object']);
+				if(!in_array($listener['callback'], $this->getImplementedListeners())){
+					$exceptions[] = [$event, $listener['callback'], $reflect->getName(), "Callback not Implemented"];
+				}
+				if(class_exists($reflect->getName())){
+					if(!$reflect->hasMethod($listener['callback'])){
+						$exceptions[] = [$event, $listener['callback'], $reflect->getName(), "Callback function not found"];
+					}
+					else{
+						call_user_func_array([$listener['object'], $listener['callback']], [$this]);
+					}
+				}
+				else{
+					$exceptions[] = [$event, $listener['callback'], $reflect->getName(), "Class not found"];
+				}
+			}
+			if($this->isPropagationStopped()) break;
+		}
+		if(count($exceptions) == 1){
+			throw new EventListenerException($exceptions[0]);
+		}
+		elseif(count($exceptions) > 1){
+			throw new EventListenerException([$exceptions, true]);
+		}
+		return $this;
+	}
 	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerEventInterface::beforeRunUp()
 	 */
-	public function beforeRunUp()
+	public function beforeRunUp(ControllerEventInterface $event)
 	{}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\DevoirEventInterface::getImplementedListeners()
+	 */
+	public function getImplementedListeners(): iterable
+	{
+		return [
+			EVENT_ON_INITIALIZE,
+			EVENT_ON_TERMINATE,
+			EVENT_CONTROLLER_BEFORE_RUNUP,
+			EVENT_CONTROLLER_AFTER_RUNUP,
+			EVENT_CONTROLLER_BEFORE_DISPATCH,
+			EVENT_CONTROLLER_AFTER_DISPATCH,
+			EVENT_CONTROLLER_BEFORE_MANIFEST,
+			EVENT_CONTROLLER_AFTER_MANIFEST
+		];
+	}
 	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerEventInterface::afterRunUp()
 	 */
-	public function afterRunUp()
+	public function afterRunUp(ControllerEventInterface $event)
 	{}
 	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerEventInterface::afterDispatch()
 	 */
-	public function afterDispatch()
+	public function afterDispatch(ControllerEventInterface $event)
 	{}
 	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerEventInterface::beforeDispatch()
 	 */
-	public function beforeDispatch()
+	public function beforeDispatch(ControllerEventInterface $event)
 	{}
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ControllerEventInterface::initialize()
+	 * @see \Devoir\Interfaces\ControllerEventInterface::beforeManifest()
 	 */
-	public function initialize()
+	public function beforeManifest(ControllerEventInterface $event)
 	{}
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ControllerEventInterface::terminate()
+	 * @see \Devoir\Interfaces\ControllerEventInterface::afterManifest()
 	 */
-	public function terminate()
+	public function afterManifest(ControllerEventInterface $event)
 	{}
-
+	protected final function terminate(): void
+	{
+		$this->dispatchEvent(EVENT_ON_TERMINATE);
+		$this->stoppedPropagation = true;
+	}
 }

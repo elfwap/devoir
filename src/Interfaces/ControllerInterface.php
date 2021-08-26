@@ -3,7 +3,7 @@ namespace Devoir\Interfaces;
 
 /**
  *
- * @namespace Devoir
+ * @namespace Devoir\Interfaces
  * @author Muhammad Tahir Abdullahi
  * @copyright Copyright (c) Elftech Inc.
  * @package elfwap/devoir

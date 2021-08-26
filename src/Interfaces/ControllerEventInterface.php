@@ -3,7 +3,7 @@ namespace Devoir\Interfaces;
 
 /**
  * ControllerEventInterface
- * @namespace Devoir
+ * @namespace Devoir\Interfaces
  * @author Muhammad Tahir Abdullahi
  * @copyright Copyright (c) Elftech Inc.
  * @package elfwap/devoir
@@ -12,11 +12,35 @@ namespace Devoir\Interfaces;
  */
 interface ControllerEventInterface extends DevoirEventInterface
 {
-	public function initialize();
-	public function beforeRunUp();
-	public function afterRunUp();
-	public function beforeDispatch();
-	public function afterDispatch();
-	public function terminate();
+	/**
+	 * 
+	 * @param DevoirEventInterface $event
+	 */
+	public function beforeRunUp(ControllerEventInterface $event);
+	/**
+	 * 
+	 * @param DevoirEventInterface $event
+	 */
+	public function afterRunUp(ControllerEventInterface $event);
+	/**
+	 * 
+	 * @param DevoirEventInterface $event
+	 */
+	public function beforeDispatch(ControllerEventInterface $event);
+	/**
+	 * 
+	 * @param DevoirEventInterface $event
+	 */
+	public function afterDispatch(ControllerEventInterface $event);
+	/**
+	 * 
+	 * @param ControllerEventInterface $event
+	 */
+	public function beforeManifest(ControllerEventInterface $event);
+	/**
+	 * 
+	 * @param ControllerEventInterface $event
+	 */
+	public function afterManifest(ControllerEventInterface $event);
 }
 

@@ -19,11 +19,7 @@ class Devoir
     {
     }
 
-    /**
-     */
-    function __destruct()
-    {
-    }
+    
     /**
      * Returns array of ancestral classes
      * starting from the first super class to the immediate parent class

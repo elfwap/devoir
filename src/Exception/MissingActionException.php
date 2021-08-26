@@ -34,6 +34,7 @@ class MissingActionException extends DevoirException
 		if(is_array($message) && count($message) == 3){
 			$this->template .= " Additional info: %s.";
 		}
+		http_response_code(RESPOSNSE_CODE_NOT_FOUND);
 		parent::__construct($message, $code, $previous);
 	}
 	
@@ -41,15 +42,13 @@ class MissingActionException extends DevoirException
 	 */
 	function __destruct()
 	{
-		
-		// TODO - Insert your code here
 	}
 	
 	/**
 	 * @return \Devoir\Exception\MissingActionException
 	 */
 	public static function newInstance($message, ?int $code = null, ?Throwable $previous = null) {
-		return (new ReflectionClass(MissingActionException::class))->newInstanceArgs([$message, $code, $previous]);
+		return (new ReflectionClass(self::class))->newInstanceArgs([$message, $code, $previous]);
 	}
 }
 
