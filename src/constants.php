@@ -24,6 +24,9 @@ if(!defined('MIL_WEEK')) define('MIL_WEEK', 604800000);
 if(!defined('MIL_MONTH')) define('MIL_MONTH', 2592000000);
 if(!defined('MIL_YEAR')) define('MIL_YEAR', 31536000000);
 //APPLICATION PROPERTIES
+if(!defined('IS_DEBUG')){
+	define('IS_DEBUG', true);
+}
 if(!defined('APPLICATION_NAMESPACE')){
 	define('APPLICATION_NAMESPACE', 'App\\');
 }

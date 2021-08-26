@@ -145,6 +145,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public function setAction($actionName)
 	{
+		if($this->fqController == CONTROLLERS_NAMESPACE . DEFAULT_CONTROLLER && $this->controller == DEFAULT_CONTROLLER){
+			throw new MissingControllerException([$this->controller, "URI not resolved"]);
+		}
 		if(class_exists($this->fqController)){
 			throw new MissingActionException([$actionName, $this->controller, "Method not defined"]);
 			$reflect = new ReflectionClass($this->fqController);
@@ -295,8 +298,6 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public function onInitialize(DevoirEventInterface $event)
 	{
-		echo 'init';
-		$event->terminate();
 	}
 	/**
 	 * 
@@ -305,8 +306,12 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public function onTerminate(DevoirEventInterface $event)
 	{
-		echo 'term';
 	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\DevoirEventInterface::isPropagationStopped()
+	 */
 	public final function isPropagationStopped(): bool
 	{
 		return $this->stoppedPropagation;
@@ -337,7 +342,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public final function dispatchEvent($event)
 	{
-		$listeners = $this->getListenersForEvent($event) ?? [];
+		$listeners = $this->getListenersForEvent($event);
 		$exceptions = array();
 		foreach ($listeners as $listener) {
 			if(is_string($listener['callback']) && is_null($listener['object'])){
