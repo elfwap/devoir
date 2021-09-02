@@ -2,7 +2,6 @@
 namespace Devoir\Exception;
 
 use \Throwable;
-use \ReflectionClass;
 
 /**
  *
@@ -50,12 +49,6 @@ class EventListenerException extends DevoirException
 	 */
 	function __destruct()
 	{
-	}
-	/**
-	 * @return \Devoir\Exception\EventListenerException
-	 */
-	public static function newInstance($message, ?int $code = null, ?Throwable $previous = null) {
-		return (new ReflectionClass(self::class))->newInstanceArgs([$message, $code, $previous]);
 	}
 }
 

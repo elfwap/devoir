@@ -27,7 +27,7 @@ class NotFoundException extends DevoirException
 		}
 		$this->template = "`%s` Not found.";
 		$this->code = NOT_FOUND_EXCEPTION_CODE;
-		http_response_code(RESPOSNSE_CODE_NOT_FOUND);
+		http_response_code(RESPONSE_CODE_NOT_FOUND);
 		parent::__construct($message, $code, $previous);
 	}
 

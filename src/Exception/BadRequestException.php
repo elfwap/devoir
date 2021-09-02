@@ -33,7 +33,7 @@ class BadRequestException extends DevoirException
 			$message = "Bad Request!";
 		}
 		$this->code = BAD_REQUEST_EXCEPTION_CODE;
-		http_response_code(RESPOSNSE_CODE_BAD_REQUEST);
+		http_response_code(RESPONSE_CODE_BAD_REQUEST);
 		parent::__construct($message, $code, $previous);
 	}
 	/**

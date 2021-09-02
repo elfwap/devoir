@@ -11,6 +11,9 @@ use Devoir\Interfaces\ControllerEventInterface;
 use Devoir\Interfaces\DevoirEventInterface;
 use Devoir\Exception\EventListenerException;
 use Devoir\Exception\MissingInheritanceException;
+use Devoir\Exception\NotFoundException;
+use Devoir\Exception\BadRequestException;
+use Devoir\Interfaces\ResponseInterface;
 
 /**
  *
@@ -21,7 +24,7 @@ use Devoir\Exception\MissingInheritanceException;
  * @license https://opensource.org/licenses/mit-license.php MIT License
  *        
  */
-class Controller extends Devoir implements ControllerInterface, ControllerEventInterface
+class Controller extends Devoir implements ControllerInterface, ControllerEventInterface, ResponseInterface
 {
 	/**
 	 * 
@@ -47,7 +50,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * 
 	 * @var array
 	 */
-	protected $controllerParams = array();
+	protected $actionParams = array();
 	/**
 	 * 
 	 * @var array
@@ -55,7 +58,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	protected $viewVars = array();
 	/**
 	 * 
-	 * @var string
+	 * @var int
 	 */
 	protected $urlType = URL_TYPE_SLASH;
 	/**
@@ -70,53 +73,77 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	private bool $stoppedPropagation = false;
 	/**
 	 * 
+	 * @var string
+	 */
+	private string $path;
+	/**
+	 * 
+	 * @var object
+	 */
+	protected ResponseInterface $response;
+	protected int $rsponse_status_code = 0;
+	protected string $response_location = "";
+	/**
+	 * 
 	 * @param mixed $controller
 	 * @param string $action
 	 * @param array $params
 	 */
 	public function __construct($controller = null, $action = null, ?array $params = array())
 	{
+		$this->path = $_SERVER['HTTP_HOST'];
 		if(is_string($controller) && !empty($controller)){
+			$this->path .= '/' . $controller;
 			$this->setController($controller);
 		}
 		elseif(is_array($controller) && !empty($controller)){
 			if(array_key_exists('controller', $controller)){
+				$this->path .= '/' . $controller['controller'];
 				$this->setController($controller['controller']);
 			}
 			elseif(array_key_exists('Controller', $controller)){
+				$this->path .= '/' . $controller['Controller'];
 				$this->setController($controller['Controller']);
 			}
 			else{
 				@list($controllerx, $actionx, $paramsx) = $controller;
+				$this->path .= '/' . $controllerx;
 				$this->setController($controllerx);
 			}
-			
 			if(array_key_exists('action', $controller)){
+				$this->path .= '/' . $controller['action'];
 				$this->setAction($controller['action']);
 			}
 			elseif(array_key_exists('Action', $controller)){
+				$this->path .= '/' . $controller['Action'];
 				$this->setAction($controller['Action']);
 			}
 			else{
 				@list($controllerx, $actionx, $paramsx) = $controller;
+				$this->path .= '/' . $actionx;
 				$this->setAction($actionx);
 			}
 			
 			if(array_key_exists('params', $controller)){
+				$this->path .= '/' . implode('/', $controller['params']);
 				$this->setParams($controller['params']);
 			}
 			elseif(array_key_exists('Params', $controller)){
+				$this->path .= '/' . implode('/', $controller['Params']);
 				$this->setParams($controller['Params']);
 			}
 			else{
 				@list($controllerx, $actionx, $paramsx) = $controller;
+				$this->path .= '/' . implode('/', $paramsx);
 				$this->setParams($paramsx);
 			}
 		}
 		if(!is_null($action) && !empty($action)){
+			$this->path .= '/' . $action;
 			$this->setAction($action);
 		}
 		if(is_array($params) && !empty($params)){
+			$this->path . '/' . implode('/', $params);
 			$this->setParams($params);
 		}
 		$this->initialize();
@@ -138,35 +165,13 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			$this->dispatchEvent(EVENT_ON_INITIALIZE);
 		}
 	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ControllerInterface::setAction()
-	 */
-	public function setAction($actionName)
-	{
-		if($this->fqController == CONTROLLERS_NAMESPACE . DEFAULT_CONTROLLER && $this->controller == DEFAULT_CONTROLLER){
-			throw new MissingControllerException([$this->controller, "URI not resolved"]);
-		}
-		if(class_exists($this->fqController)){
-			throw new MissingActionException([$actionName, $this->controller, "Method not defined"]);
-			$reflect = new ReflectionClass($this->fqController);
-			if(!$reflect->hasMethod($actionName)){
-				throw new MissingActionException([$actionName, $this->controller, "Method not defined"]);
-			}
-			$this->action = $actionName;
-		}
-		else{
-			throw new MissingControllerException([$this->controller, "Class [" . $this->fqController . "] not found"]);
-		}
-		return $this;
-	}
+	
 	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerInterface::setViewVar()
 	 */
-	public function setViewVar($var)
+	public final function setViewVar($var)
 	{
 		$this->viewVars[] = $var;
 		return $this;
@@ -176,7 +181,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerInterface::getViewVars()
 	 */
-	public function getViewVars()
+	public final function getViewVars()
 	{
 		return $this->viewVars;
 	}
@@ -185,10 +190,14 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerInterface::run()
 	 */
-	public function run()
+	public final function run()
 	{
 		$this->dispatchEvent(EVENT_CONTROLLER_BEFORE_RUNUP);
-		// TODO: run up
+		$x = call_user_func_array([$this->fqController], $this->actionParams);
+		if($x instanceof ResponseInterface){
+			$this->response = $x;
+		}
+		//TODO render view
 		$this->dispatchEvent(EVENT_CONTROLLER_AFTER_RUNUP);
 	}
 	/**
@@ -196,7 +205,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerInterface::setController()
 	 */
-	public function setController($controllerName)
+	public final function setController($controllerName)
 	{
 		if ($pos = strpos($controllerName, 'Controller')) {
 			$controllerName = substr($controllerName, 0, $pos);
@@ -205,7 +214,10 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$filename = rtrim(CONTROLLERS_PATH, DS) . DS . $controllerName . '.php';
 		$classname = CONTROLLERS_NAMESPACE . $controllerName;
 		if (!file_exists($filename)) {
-			throw new MissingControllerException([$controllerName, "File [" . $filename . "] not found"]);
+			if(IS_DEBUG){
+				throw MissingControllerException::newInstance([$controllerName, "File [" . $filename . "] not found"]);
+			}
+			throw new NotFoundException([$this->path]);
 		}
 		if (!class_exists($classname)) {
 			throw new MissingControllerException([$controllerName, "Class [" . $classname . "] not found"]);
@@ -222,11 +234,42 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 * 
 	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ControllerInterface::setAction()
+	 */
+	public final function setAction($actionName)
+	{
+		if($this->fqController == CONTROLLERS_NAMESPACE . DEFAULT_CONTROLLER && $this->controller == DEFAULT_CONTROLLER){
+			if(IS_DEBUG){
+				throw new MissingControllerException([$this->controller, "URI not resolved"]);
+			}
+			throw new BadRequestException(["URI not resolved"]);
+		}
+		if(class_exists($this->fqController)){
+			if(IS_DEBUG){
+				throw new MissingActionException([$actionName, $this->controller, "Method not defined"]);
+			}
+			throw NotFoundException::newInstance([$this->path]);
+			$reflect = new ReflectionClass($this->fqController);
+			if(!$reflect->hasMethod($actionName)){
+				if(IS_DEBUG) throw new MissingActionException([$actionName, $this->controller, "Method not defined"]);
+				throw new NotFoundException([$this->path]);
+			}
+			$this->action = $actionName;
+		}
+		else{
+			if(IS_DEBUG) throw MissingControllerException::newInstance([$this->controller, "Class [" . $this->fqController . "] not found"]);
+			else throw NotFoundException::newInstance([$this->path]);
+		}
+		return $this;
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerInterface::setParams()
 	 */
-	public function setParams(?array $params)
+	public final function setParams(?array $params)
 	{
-		$this->controllerParams = $params;
+		$this->actionParams = $params;
 		return $this;
 	}
 	public static final function newInstance($controller = null, $action = null, ?array $params = array()) {
@@ -236,7 +279,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * Parses URI to generate objects for Controllers and Action methods.
 	 * @return null
 	 */
-	protected function parseURI(){
+	protected final function parseURI(){
 		$path = "";
 		if($this->urlType == URL_TYPE_SLASH){
 			$path = trim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), "/");
@@ -255,6 +298,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		if (strpos($path, $this->basePath) === 0) {
 			$path = substr($path, strlen($this->basePath));
 		}
+		$this->path .= $_SERVER["REQUEST_URI"];
 		@list($controller, $action, $params) = explode('/', $path, 3);
 		if(isset($controller)){
 			$this->setController($controller);
@@ -466,9 +510,110 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public function afterManifest(ControllerEventInterface $event)
 	{}
+	/**
+	 * 
+	 */
 	protected final function terminate(): void
 	{
 		$this->dispatchEvent(EVENT_ON_TERMINATE);
 		$this->stoppedPropagation = true;
 	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::redirectToLocation()
+	 */
+	public function redirectToLocation(?string $location, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface
+	{
+		
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::getLocation()
+	 */
+	public function getLocation(): string
+	{}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::setStatusCode()
+	 */
+	public function setStatusCode(?int $code): ResponseInterface
+	{
+		
+		return $this;
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::getResponse()
+	 */
+	public function getResponse(): iterable
+	{}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::redirectToController()
+	 */
+	public function redirectToController(?array $uriArray, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface
+	{}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::getStatusCode()
+	 */
+	public function getStatusCode(): int
+	{
+		return $this->response_status_code;
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::redirectToAction()
+	 */
+	public function redirectToAction(?string $action): ResponseInterface
+	{}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::getURI()
+	 */
+	public function getURI(): iterable
+	{
+		
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::isRedirect()
+	 */
+	public function isRedirect(): bool
+	{
+		return ($this->getStatusCode() > 299 && $this->getStatusCode() < 400) ? true : false;
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::isServerError()
+	 */
+	public function isServerError(): bool
+	{
+		return ($this->getStatusCode() > 499 && $this->getStatusCode() < 600) ? true : false;
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::isClientError()
+	 */
+	public function isClientError(): bool
+	{
+		return ($this->getStatusCode() > 399 && $this->getStatusCode() < 500) ? true : false;
+	}
+	public function setLocation(?string $location): ResponseInterface
+	{}
+
+	public function setURI(?iterable $uri): ResponseInterface
+	{}
+
 }

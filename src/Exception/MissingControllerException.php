@@ -2,7 +2,6 @@
 namespace Devoir\Exception;
 
 use \Throwable;
-use \ReflectionClass;
 
 /**
  *
@@ -31,7 +30,7 @@ class MissingControllerException extends DevoirException
 		if(is_array($message) && count($message) == 2){
 			$this->template .= " Additional info: %s.";
 		}
-		http_response_code(RESPOSNSE_CODE_NOT_FOUND);
+		http_response_code(RESPONSE_CODE_NOT_FOUND);
 		parent::__construct($message, $code, $previous);
 	}
 
@@ -39,13 +38,6 @@ class MissingControllerException extends DevoirException
 	 */
 	function __destruct()
 	{
-	}
-	
-	/**
-	 * @return \Devoir\Exception\MissingControllerException
-	 */
-	public static function newInstance($message, ?int $code = null, ?Throwable $previous = null) {
-		return (new ReflectionClass(self::class))->newInstanceArgs([$message, $code, $previous]);
 	}
 }
 
