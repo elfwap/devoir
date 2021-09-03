@@ -25,11 +25,9 @@
 	"description" : "Devoir PHP Framework core library.",
 	"license" : "MIT",
 	"require" : {
-		"php" : ">=7.4",
-		"codeception/module-phpbrowser" : "^1.0.0",
-		"codeception/module-asserts" : "^1.0.0"
+		"php" : ">=7.4"
 	},
-	"minimum-stability" : "beta",
+	"minimum-stability" : "dev",
 	"authors" : [{
 			"name" : "Muhammad Tahir Abdullahi",
 			"email" : "muhammedtahirabdullahi@gmail.com",
