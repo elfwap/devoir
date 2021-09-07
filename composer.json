@@ -16,8 +16,9 @@
 			"Devoir\\" : "src"
 		},
 		"files" : [
-			"src/functions.php",
-			"src/constants.php"
+			"src/system/functions.php",
+			"src/system/constants.php",
+			"src/system/config.php"
 		]
 	},
 	"name" : "elfwap/devoir",

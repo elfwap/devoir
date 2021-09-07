@@ -30,7 +30,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * 
 	 * @var string
 	 */
-	protected $controller = DEFAULT_CONTROLLER;
+	protected $controller = $_DEVOIR_CONFIG['DEFUALT_CONTROLLER'];
 	/**
 	 * Fully-qualified controller's name
 	 * @var string
@@ -91,6 +91,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public function __construct($controller = null, $action = null, ?array $params = array())
 	{
+		$this->controller = $_DEVOIR_CONFIG['DEFUALT_CONTROLLER'];
 		$this->path = $_SERVER['HTTP_HOST'];
 		if(is_string($controller) && !empty($controller)){
 			$this->path .= '/' . $controller;
