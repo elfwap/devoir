@@ -1,5 +1,4 @@
 <?php
-namespace Devoir;
 
 if(!function_exists("isController")){
     function isController($component) {

@@ -1,5 +1,4 @@
 <?php
-namespace Devoir;
 
 //MISC CONSTANTS
 if (!defined('YES')) define('YES', true);
