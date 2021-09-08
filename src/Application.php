@@ -12,9 +12,8 @@ namespace Devoir;
  */
 class Application
 {
-	/**
-	 */
-	public function __construct($systemDir)
+	
+	public function __construct($systemDir = null)
 	{
 		if(is_dir($systemDir)){
 			$constants = $systemDir . DIRECTORY_SEPARATOR . 'constants.php';
@@ -25,26 +24,18 @@ class Application
 			if(is_file($functions) && file_exists($functions)){
 				require_once $functions;
 			}
-			$devoirSystemDir = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'system';
-			if(is_dir($devoirSystemDir)){
-				$devoirConstants = $devoirSystemDir . DIRECTORY_SEPARATOR . 'constants.php';
-				$devoirFunctions = $devoirSystemDir . DIRECTORY_SEPARATOR . 'functions.php';
-				if(is_file($devoirConstants) && file_exists($devoirConstants)) require_once $devoirConstants;
-				if(is_file($devoirFunctions) && file_exists($devoirFunctions)) require_once $devoirFunctions;
-			}
+		}
+		$devoirSystemDir = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'system';
+		if(is_dir($devoirSystemDir)){
+			$devoirConstants = $devoirSystemDir . DIRECTORY_SEPARATOR . 'constants.php';
+			$devoirFunctions = $devoirSystemDir . DIRECTORY_SEPARATOR . 'functions.php';
+			if(is_file($devoirConstants) && file_exists($devoirConstants)) require_once $devoirConstants;
+			if(is_file($devoirFunctions) && file_exists($devoirFunctions)) require_once $devoirFunctions;
 		}
 		$controller = new Controller();
 		$controller->registerListener(EVENT_ON_INITIALIZE, EVENT_ON_INITIALIZE);
 		$controller->dispatchEvent(EVENT_ON_INITIALIZE);
 		$controller->run();
-	}
-
-	/**
-	 */
-	function __destruct()
-	{
-
-		// TODO - Insert your code here
 	}
 }
 

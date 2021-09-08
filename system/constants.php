@@ -24,7 +24,7 @@ if(!defined('MIL_MONTH')) define('MIL_MONTH', 2592000000);
 if(!defined('MIL_YEAR')) define('MIL_YEAR', 31536000000);
 //APPLICATION PROPERTIES
 if(!defined('APPLICATION_NAMESPACE')){
-	define('APPLICATION_NAMESPACE', 'DevoirApp\\');
+	define('APPLICATION_NAMESPACE', 'App\\');
 }
 if (!defined('CONTROLLERS_NAMESPACE')) {
 	define('CONTROLLERS_NAMESPACE', APPLICATION_NAMESPACE . 'Controllers\\');

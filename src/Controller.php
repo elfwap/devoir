@@ -91,7 +91,6 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public function __construct($controller = null, $action = null, ?array $params = array())
 	{
-		$this->controller;
 		$this->path = $_SERVER['HTTP_HOST'];
 		if(is_string($controller) && !empty($controller)){
 			$this->path .= '/' . $controller;
