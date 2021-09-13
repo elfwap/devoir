@@ -3,7 +3,9 @@ namespace Devoir;
 
 use \ReflectionClass;
 use \ReflectionFunction;
+use \ReflectionMethod;
 use \Closure;
+use \ArgumentCountError;
 use Devoir\Exception\MissingControllerException;
 use Devoir\Exception\MissingActionException;
 use Devoir\Interfaces\ControllerInterface;
@@ -14,6 +16,7 @@ use Devoir\Exception\MissingInheritanceException;
 use Devoir\Exception\NotFoundException;
 use Devoir\Exception\BadRequestException;
 use Devoir\Interfaces\ResponseInterface;
+use Devoir\Exception\DevoirException;
 
 /**
  *
@@ -89,7 +92,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * @param string $action
 	 * @param array $params
 	 */
-	public function __construct($controller = null, $action = null, ?array $params = array())
+	public final function __construct($controller = null, $action = null, ?array $params = array())
 	{
 		$this->path = $_SERVER['HTTP_HOST'];
 		if(is_string($controller) && !empty($controller)){
@@ -192,13 +195,28 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public final function run()
 	{
-		$this->dispatchEvent(EVENT_CONTROLLER_BEFORE_RUNUP);
-		$x = call_user_func_array([$this->fqController], $this->actionParams);
-		if($x instanceof ResponseInterface){
-			$this->response = $x;
+		try {
+			$this->dispatchEvent(EVENT_CONTROLLER_BEFORE_RUNUP);
+			$reflect = new ReflectionClass($this->fqController);
+			$reflectm = new ReflectionMethod($this->fqController . '::' . $this->action);
+			$x = $reflectm->invokeArgs($reflect->newInstanceWithoutConstructor(), $this->actionParams);
+			if($x instanceof ResponseInterface){
+				$this->response = $x;
+				if($x->isRedirect()){
+					$code = $x->getStatusCode();
+					$location = $x->getLocation();
+				}
+				if($x->isClientError()){
+					http_response_code($x->getStatusCode());
+					throw new DevoirException('Client Error');
+				}
+			}
+			//TODO render view
+			$this->dispatchEvent(EVENT_CONTROLLER_AFTER_RUNUP);
 		}
-		//TODO render view
-		$this->dispatchEvent(EVENT_CONTROLLER_AFTER_RUNUP);
+		catch (ArgumentCountError $acerr) {
+			
+		}
 	}
 	/**
 	 * 
@@ -211,11 +229,12 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			$controllerName = substr($controllerName, 0, $pos);
 		}
 		$controllerName = ucfirst(strtolower($controllerName)) . "Controller";
+		$controllerName = $this->dashedToCamelCase($controllerName);
 		$filename = rtrim(CONTROLLERS_PATH, DS) . DS . $controllerName . '.php';
 		$classname = CONTROLLERS_NAMESPACE . $controllerName;
 		if (!file_exists($filename)) {
 			if(IS_DEBUG){
-				throw MissingControllerException::newInstance([$controllerName, "File [" . $filename . "] not found"]);
+				throw new MissingControllerException([$controllerName, "File [" . $filename . "] not found"]);
 			}
 			throw new NotFoundException([$this->path]);
 		}
@@ -238,6 +257,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public final function setAction($actionName)
 	{
+		$actionName = $this->dashedToCamelCase($actionName);
 		if($this->fqController == CONTROLLERS_NAMESPACE . DEFAULT_CONTROLLER && $this->controller == DEFAULT_CONTROLLER){
 			if(IS_DEBUG){
 				throw new MissingControllerException([$this->controller, "URI not resolved"]);
@@ -245,10 +265,6 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			throw new BadRequestException(["URI not resolved"]);
 		}
 		if(class_exists($this->fqController)){
-			if(IS_DEBUG){
-				throw new MissingActionException([$actionName, $this->controller, "Method not defined"]);
-			}
-			throw NotFoundException::newInstance([$this->path]);
 			$reflect = new ReflectionClass($this->fqController);
 			if(!$reflect->hasMethod($actionName)){
 				if(IS_DEBUG) throw new MissingActionException([$actionName, $this->controller, "Method not defined"]);
@@ -257,8 +273,8 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			$this->action = $actionName;
 		}
 		else{
-			if(IS_DEBUG) throw MissingControllerException::newInstance([$this->controller, "Class [" . $this->fqController . "] not found"]);
-			else throw NotFoundException::newInstance([$this->path]);
+			if(IS_DEBUG) throw new MissingControllerException([$this->controller, "Class [" . $this->fqController . "] not found"]);
+			throw new NotFoundException([$this->path]);
 		}
 		return $this;
 	}
@@ -269,7 +285,11 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public final function setParams(?array $params)
 	{
-		$this->actionParams = $params;
+		$prms = array();
+		foreach ($params as $key => $value) {
+			$prms[$key] = $this->dashedToCamelCase($value);
+		}
+		$this->actionParams = $prms;
 		return $this;
 	}
 	public static final function newInstance($controller = null, $action = null, ?array $params = array()) {
@@ -295,8 +315,8 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			}
 		}
 		$path = preg_replace('/[^a-zA-Z0-9]\//', "", $path);
-		if (strpos($path, $this->basePath) === 0) {
-			$path = substr($path, strlen($this->basePath));
+		if (strpos($path, $this->basePath . '/') === 0) {
+			$path = substr($path, strlen($this->basePath . '/'));
 		}
 		$this->path .= $_SERVER["REQUEST_URI"];
 		@list($controller, $action, $params) = explode('/', $path, 3);
@@ -312,6 +332,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		if(isset($params)){
 			$this->setParams(explode("/", $params));
 		}
+		
 	}
 	/**
 	 * 
@@ -399,7 +420,8 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 						$exceptions[] = [$event, $listener['callback'], $this->fqController, "Callback function not found"];
 					}
 					else{
-						call_user_func_array([$this->fqController, $listener['callback']], [$this]);
+						$reflectm = new ReflectionMethod($this->fqController . '::' . $listener['callback']);
+						$reflectm->invokeArgs($reflect->newInstanceWithoutConstructor(), [$this]);
 					}
 				}
 				else{
@@ -411,7 +433,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 				$reflect->invokeArgs([$this]);
 			}
 			elseif(is_callable($listener['callback']) && (is_object($listener['object']) || is_string($listener['object']))){
-				$closure = Closure::fromCallable($listener['callback']);
+				$closure = (new Closure())->fromCallable($listener['callback']);
 				if(is_object($listener['object'])) $closure->call($listener['object'], $this);
 				elseif(is_string($listener['object'])){
 					if($listener['object'] == self::class){
@@ -423,7 +445,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 					}
 				}
 			}
-			elseif(is_string($listener['callback']) && (is_object($listener['object']) || is_string($listener['object']))){
+			elseif(is_string($listener['callback']) && is_string($listener['object'])){
 				$reflect = new ReflectionClass($listener['object']);
 				if(!in_array($listener['callback'], $this->getImplementedListeners())){
 					$exceptions[] = [$event, $listener['callback'], $reflect->getName(), "Callback not Implemented"];
@@ -433,7 +455,8 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 						$exceptions[] = [$event, $listener['callback'], $reflect->getName(), "Callback function not found"];
 					}
 					else{
-						call_user_func_array([$listener['object'], $listener['callback']], [$this]);
+						$reflectm = new ReflectionMethod($listener['object'] . '::' . $listener['callback']);
+						$reflectm->invokeArgs($reflect->newInstanceWithoutConstructor(), [$this]);
 					}
 				}
 				else{
@@ -573,7 +596,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * @see \Devoir\Interfaces\ResponseInterface::redirectToAction()
 	 */
 	public function redirectToAction(?string $action): ResponseInterface
-	{}
+	{
+		return $this;
+	}
 	/**
 	 * 
 	 * {@inheritDoc}
@@ -615,5 +640,15 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 
 	public function setURI(?iterable $uri): ResponseInterface
 	{}
-
+	private function dashedToCamelCase(?string $value){
+		$comp = "";
+		$varr = explode('-', $value);
+		if(count($varr) < 2) return $value;
+		$comp .= $varr[0];
+		array_shift($varr);
+		foreach ($varr as $vr){
+			$comp .= ucfirst($vr);
+		}
+		return $comp;
+	}
 }

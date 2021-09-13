@@ -33,8 +33,6 @@ class Application
 			if(is_file($devoirFunctions) && file_exists($devoirFunctions)) require_once $devoirFunctions;
 		}
 		$controller = new Controller();
-		$controller->registerListener(EVENT_ON_INITIALIZE, EVENT_ON_INITIALIZE);
-		$controller->dispatchEvent(EVENT_ON_INITIALIZE);
 		$controller->run();
 	}
 }
