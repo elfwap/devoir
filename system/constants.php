@@ -83,37 +83,35 @@ define('UNAVAILABLE_FOR_LEGAL_REASONS_EXCEPTION_CODE', 1451);
 //PATHS
 define('DS', DIRECTORY_SEPARATOR);
 define('ROOT_PATH', $_SERVER['DOCUMENT_ROOT']);
-if(!defined('BASE_PATH')){
+if(!defined('BASE_PATH') || !defined('BASE_SOURCE_PATH')){
 	$a = str_replace(ROOT_PATH, "", dirname(__FILE__));
 	$a = str_replace('\/', DS, $a);
 	$a = trim($a, DS);
 	$b = 0;
-	$a = str_replace('vendor' . DS . 'elfwap' . DS . 'devoir' . DS . 'src', "", $a, $b);
-	if($b < 1) 
-		define('BASE_PATH', "");
-	else
-		define('BASE_PATH', $a);
-}
-else{
-	define('BASE_PATH', str_replace('\/', DS, BASE_PATH));
+	$a = str_replace(DS . 'vendor' . DS . 'elfwap' . DS . 'devoir' . DS . 'system', "", $a, $b);
+	if($b < 1){
+		if(!defined('BASE_PATH')) define('BASE_PATH', ROOT_PATH);
+		if(!defined('BASE_SOURCE_PATH')) define('BASE_SOURCE_PATH', ROOT_PATH . DS . 'src');
+	}
+	else{
+		if(!defined('BASE_PATH')) define('BASE_PATH', $a);
+		if(strlen($a) < 1){
+			if(!defined('BASE_SOURCE_PATH')) define('BASE_SOURCE_PATH', ROOT_PATH . DS . 'src');
+		}
+		elseif(strlen($a) > 0){
+			if(!defined('BASE_SOURCE_PATH')) define('BASE_SOURCE_PATH', ROOT_PATH . DS . $a . DS . 'src');
+		}
+	}
 }
 if(!defined('CONTROLLERS_PATH')){
-	define('CONTROLLERS_PATH', (empty(BASE_PATH) ? BASE_PATH : (BASE_PATH . DS)) . "Controllers" . DS);
+	define('CONTROLLERS_PATH', (empty(BASE_SOURCE_PATH) ? BASE_SOURCE_PATH : (BASE_SOURCE_PATH . DS)) . "Controllers" . DS);
 }
-else{
-	define('CONTROLLERS_PATH', str_replace('\/', DS, CONTROLLERS_PATH));
-}
+
 if(!defined('MODELS_PATH')){
-	define('MODELS_PATH', (empty(BASE_PATH) ? BASE_PATH : (BASE_PATH . DS)) . "Models" . DS);
-}
-else{
-	define('MODELS_PATH', str_replace('\/', DS, MODELS_PATH));
+	define('MODELS_PATH', (empty(BASE_SOURCE_PATH) ? BASE_SOURCE_PATH : (BASE_SOURCE_PATH . DS)) . "Models" . DS);
 }
 if(!defined('VIEWS_PATH')){
-	define('VIEWS_PATH', (empty(BASE_PATH) ? BASE_PATH : (BASE_PATH . DS)) . "Views" . DS);
-}
-else{
-	define('VIEWS_PATH', str_replace('\/', DS, VIEWS_PATH));
+	define('VIEWS_PATH', (empty(BASE_SOURCE_PATH) ? BASE_SOURCE_PATH : (BASE_SOURCE_PATH . DS)) . "Views" . DS);
 }
 //URL CONFIG
 define('URL_TYPE_QUERY', 2000);

@@ -1,8 +1,12 @@
 <?php
 
+use Devoir\Devoir;
+use Devoir\Controller;
+
 if(!function_exists("isController")){
     function isController($component) {
         return is_a($component, Controller::class, true);
+       
     }
 }
 /* if(!function_exists("isModel")){
