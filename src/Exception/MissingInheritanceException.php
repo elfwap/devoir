@@ -29,11 +29,5 @@ class MissingInheritanceException extends DevoirException
 		$this->code = MISSING_INHERITANCE_EXCEPTION_CODE;
 		parent::__construct($message, $code, $previous);
 	}
-
-	/**
-	 */
-	function __destruct()
-	{
-	}
 }
 

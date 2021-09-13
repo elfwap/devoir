@@ -33,11 +33,5 @@ class MissingControllerException extends DevoirException
 		http_response_code(RESPONSE_CODE_NOT_FOUND);
 		parent::__construct($message, $code, $previous);
 	}
-
-	/**
-	 */
-	function __destruct()
-	{
-	}
 }
 

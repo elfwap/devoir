@@ -36,10 +36,5 @@ class BadRequestException extends DevoirException
 		http_response_code(RESPONSE_CODE_BAD_REQUEST);
 		parent::__construct($message, $code, $previous);
 	}
-	/**
-	 */
-	function __destruct()
-	{
-	}
 }
 

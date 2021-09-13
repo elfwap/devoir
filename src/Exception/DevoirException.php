@@ -3,7 +3,6 @@ namespace Devoir\Exception;
 
 use \Throwable;
 use \Exception;
-use \ReflectionClass;
 
 /**
  *
@@ -47,56 +46,6 @@ class DevoirException extends Exception
 			$message = vsprintf($this->template, $message);
 			parent::__construct($message, $code, $previous);
 		}
-	}
-
-    /**
-     */
-    function __destruct()
-    {
-	}
-
-	/**
-	 * 
-	 * @example
-	 * ```
-	 * $x->setTemplate("InvalidArgumentException: Argument %s supplied on method: '%s' at line: (%d) in file [%s] is not a/an %s ");
-	 * ```
-	 * @param string	$template	String template to be formatted.
-	 * @return \Devoir\Exception\DevoirException
-	 */
-	protected function setTemplate($template = '') {
-		$this->template = $template;
-		return $this;
-	}
-	/**
-	 * 
-	 * @example
-	 * ```
-	 * $x->setCode(256);
-	 * ```
-	 * @param int $code
-	 * @return \Devoir\Exception\DevoirException
-	 */
-	protected function setCode($code = 0) {
-		$this->code = $code;
-		return $this;
-	}
-	/**
-	 * 
-	 * @param mixed $message
-	 * @param Throwable $previous
-	 * @return \Devoir\Exception\DevoirException
-	 */
-	protected function init($message = null, ?Throwable $previous = null) {
-		$this->__construct($message, $this->code, $previous);
-		return $this;
-	}
-	
-	/**
-	 * @return \Devoir\Exception\DevoirException
-	 */
-	public static function newInstance($message, ?int $code = null, ?Throwable $previous = null) {
-		return (new ReflectionClass(static::class))->newInstanceArgs([$message, $code, $previous]);
-	}
+	}	
 }
 

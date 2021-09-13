@@ -44,11 +44,5 @@ class EventListenerException extends DevoirException
 		$this->code = EVENT_LISTENER_EXCEPTION_CODE;
 		parent::__construct($message, $code, $previous);
 	}
-
-	/**
-	 */
-	function __destruct()
-	{
-	}
 }
 
