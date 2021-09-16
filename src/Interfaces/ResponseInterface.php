@@ -13,28 +13,30 @@ namespace Devoir\Interfaces;
 interface ResponseInterface
 {
 	/**
-	 * 
-	 * Redirects to uri location
+	 * Redirects to URI Location with reason
 	 * @param string $location
 	 * @param int $statusCode
+	 * @param string $reason
 	 * @return ResponseInterface
 	 */
-	public function redirectToLocation(?string $location, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface;
+	public function redirectToLocation(?string $location, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY, ?string $reason = null): ResponseInterface;
 	/**
 	 * 
-	 * Redirect to another controller with different action and parameters
+	 * Redirect to another controller with different action and parameters with reason
 	 * @param array $uriArray
 	 * @param int $statusCode
+	 * @param string $reason
 	 * @return ResponseInterface
 	 */
-	public function redirectToController(?array $uriArray, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface;
+	public function redirectToController(?array $uriArray, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY, ?string $reason = null): ResponseInterface;
 	/**
 	 * 
-	 * Redirect to another action in the same controller
+	 * Redirect to another action in the same controller with reason
 	 * @param string $action
+	 * @param string $reason
 	 * @return ResponseInterface
 	 */
-	public function redirectToAction(?string $action): ResponseInterface;
+	public function redirectToAction(?string $action, ?string $reason): ResponseInterface;
 	/**
 	 * 
 	 * Set response status code
@@ -67,6 +69,11 @@ interface ResponseInterface
 	 */
 	public function setURI(?iterable $uri): ResponseInterface;
 	/**
+	 * returns response message string
+	 * @return string
+	 */
+	public function getMessage(): string;
+	/**
 	 * Returns the iterable (array or object) value of location
 	 * @return iterable
 	 */
@@ -91,4 +98,18 @@ interface ResponseInterface
 	 * @return bool
 	 */
 	public function isServerError(): bool;
+	/**
+	 * set 4XX Client error as response
+	 * @param string $message
+	 * @param int $statusCode
+	 * @return ResponseInterface
+	 */
+	public function returnClientError(?string $message, ?int $statusCode = RESPONSE_CODE_NOT_FOUND): ResponseInterface;
+	/**
+	 * set 5XX Server error as response
+	 * @param string $message
+	 * @param int $statusCode
+	 * @return ResponseInterface
+	 */
+	public function returnServerError(?string $message, ?int $statusCode = RESPONSE_CODE_INTERNAL_SERVER_ERROR): ResponseInterface;
 }

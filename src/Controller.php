@@ -17,6 +17,7 @@ use Devoir\Exception\NotFoundException;
 use Devoir\Exception\BadRequestException;
 use Devoir\Interfaces\ResponseInterface;
 use Devoir\Exception\DevoirException;
+use Devoir\Exception\Client4XXException;
 
 /**
  *
@@ -84,8 +85,21 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * @var object
 	 */
 	protected ResponseInterface $response;
+	/**
+	 * 
+	 * @var integer
+	 */
 	protected int $rsponse_status_code = 0;
+	/**
+	 * 
+	 * @var string
+	 */
 	protected string $response_location = "";
+	/**
+	 * 
+	 * @var string
+	 */
+	protected string $response_message = "";
 	/**
 	 * 
 	 * @param mixed $controller
@@ -202,20 +216,23 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			$x = $reflectm->invokeArgs($reflect->newInstanceWithoutConstructor(), $this->actionParams);
 			if($x instanceof ResponseInterface){
 				$this->response = $x;
-				if($x->isRedirect()){
-					$code = $x->getStatusCode();
-					$location = $x->getLocation();
+				if($this->response->isRedirect()){
+					$code = $this->response->getStatusCode();
+					$location = $this->response->getLocation();
 				}
-				if($x->isClientError()){
-					http_response_code($x->getStatusCode());
-					throw new DevoirException('Client Error');
+				if($this->response->isClientError()){
+					throw new Client4XXException([$this->response->getMessage(), $this->response->getStatusCode()], 14001);
+				}
+				if($this->response->isServerError()){
+					// TODO throw server exception
 				}
 			}
+			//TODO - dispatch request to model
 			//TODO render view
 			$this->dispatchEvent(EVENT_CONTROLLER_AFTER_RUNUP);
 		}
 		catch (ArgumentCountError $acerr) {
-			
+			throw new DevoirException('Argument Count Error: ' . $reflectm->getNumberOfRequiredParameters() . ' Argument(s) required, ' . count($this->actionParams) . ' Supplied.');
 		}
 	}
 	/**
@@ -564,7 +581,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public function setStatusCode(?int $code): ResponseInterface
 	{
-		
+		$this->rsponse_status_code = $code;
 		return $this;
 	}
 	/**
@@ -573,7 +590,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * @see \Devoir\Interfaces\ResponseInterface::getResponse()
 	 */
 	public function getResponse(): iterable
-	{}
+	{
+		
+	}
 	/**
 	 * 
 	 * {@inheritDoc}
@@ -637,9 +656,16 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	}
 	public function setLocation(?string $location): ResponseInterface
 	{}
-
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::setURI()
+	 */
 	public function setURI(?iterable $uri): ResponseInterface
-	{}
+	{
+		
+		return $this;
+	}
 	private function dashedToCamelCase(?string $value){
 		$comp = "";
 		$varr = explode('-', $value);
@@ -651,4 +677,40 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		}
 		return $comp;
 	}
+	public function returnServerError(?string $message, ?int $statusCode = RESPONSE_CODE_INTERNAL_SERVER_ERROR): ResponseInterface
+	{
+		$this->response_message = $message;
+		if(!($statusCode > 499) && !($statusCode < 600)) throw new \InvalidArgumentException('Argument 1 (second) contains invalid value, Argument must be an integer with value of range [500 - 599]. ' . $statusCode . ' supplied');
+		$this->rsponse_status_code = $statusCode;
+		return $this;
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::returnClientError()
+	 */
+	public function returnClientError(?string $message, ?int $statusCode = RESPONSE_CODE_NOT_FOUND): ResponseInterface
+	{
+		$this->response_message = $message;
+		if(!($statusCode > 399) && !($statusCode < 500)) throw new \InvalidArgumentException('Argument 1 (second) contains invalid value, Argument must be an integer with value of range [400 - 499]. ' . $statusCode . ' supplied');
+		$this->rsponse_status_code = $statusCode;
+		return $this;
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ResponseInterface::getMessage()
+	 */
+	public function getMessage(): string
+	{
+		return $this->response_message;
+	}
+	/**
+	 * 
+	 * @param string $method
+	 * @param array $args
+	 */
+	/* public function __call($method, $args){
+		
+	} */
 }

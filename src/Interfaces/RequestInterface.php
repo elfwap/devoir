@@ -12,13 +12,13 @@ namespace Devoir\Interfaces;
  */
 interface RequestInterface
 {
-	public function isGet(RequestInterface $request);
-	public function  isPost(RequestInterface $request);
-	public function isPatch(RequestInterface $request);
-	public function isDelete(RequestInterface $request);
-	public function isPut(RequestInterface $request);
-	public function isJSON(RequestInterface $request);
-	public function is(?string $type, RequestInterface $request);
+	public function isGet(RequestInterface $request): bool;
+	public function  isPost(RequestInterface $request): bool;
+	public function isPatch(RequestInterface $request): bool;
+	public function isDelete(RequestInterface $request): bool;
+	public function isPut(RequestInterface $request): bool;
+	public function isJSON(RequestInterface $request): bool;
+	public function is(?string $type, RequestInterface $request):bool;
 	public function setData($data);
 	public function getData($data = null);
 	
