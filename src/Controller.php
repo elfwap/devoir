@@ -309,6 +309,11 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$this->actionParams = $prms;
 		return $this;
 	}
+	/**
+	 * Returns a new instance of this class as static object
+	 * 
+	 * @return $this;
+	 */
 	public static final function newInstance($controller = null, $action = null, ?array $params = array()) {
 		return (new ReflectionClass(self::class))->newInstanceArgs([$controller, $action, $params]);
 	}
@@ -428,7 +433,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$exceptions = array();
 		foreach ($listeners as $listener) {
 			if(is_string($listener['callback']) && is_null($listener['object'])){
-				if(!in_array($listener['callback'], $this->getImplementedListeners())){
+				if(!in_array($listener['callback'], (array) $this->getImplementedListeners())){
 					$exceptions[] = [$event, $listener['callback'], $this->fqController, "Callback not Implemented"];
 				}
 				if(class_exists($this->fqController)){
@@ -464,7 +469,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			}
 			elseif(is_string($listener['callback']) && is_string($listener['object'])){
 				$reflect = new ReflectionClass($listener['object']);
-				if(!in_array($listener['callback'], $this->getImplementedListeners())){
+				if(!in_array($listener['callback'], (array) $this->getImplementedListeners())){
 					$exceptions[] = [$event, $listener['callback'], $reflect->getName(), "Callback not Implemented"];
 				}
 				if(class_exists($reflect->getName())){
@@ -563,9 +568,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ResponseInterface::redirectToLocation()
 	 */
-	public function redirectToLocation(?string $location, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface
+	public function redirectToLocation(?string $location, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY, ?string $reason = null): ResponseInterface
 	{
-		
+		return $this;
 	}
 	/**
 	 * 
@@ -573,7 +578,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * @see \Devoir\Interfaces\ResponseInterface::getLocation()
 	 */
 	public function getLocation(): string
-	{}
+	{
+		return "";
+	}
 	/**
 	 * 
 	 * {@inheritDoc}
@@ -591,15 +598,17 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public function getResponse(): iterable
 	{
-		
+		return [];
 	}
 	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ResponseInterface::redirectToController()
 	 */
-	public function redirectToController(?array $uriArray, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface
-	{}
+	public function redirectToController(?array $uriArray, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY, ?string $reason = null): ResponseInterface
+	{
+		return $this;
+	}
 	/**
 	 * 
 	 * {@inheritDoc}
@@ -614,7 +623,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ResponseInterface::redirectToAction()
 	 */
-	public function redirectToAction(?string $action): ResponseInterface
+	public function redirectToAction(?string $action, ?string $reason): ResponseInterface
 	{
 		return $this;
 	}
@@ -625,7 +634,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public function getURI(): iterable
 	{
-		
+		return [];
 	}
 	/**
 	 * 
@@ -655,7 +664,10 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		return ($this->getStatusCode() > 399 && $this->getStatusCode() < 500) ? Yes : No;
 	}
 	public function setLocation(?string $location): ResponseInterface
-	{}
+	{
+		$this->response_location = $location;
+		return $this;
+	}
 	/**
 	 * 
 	 * {@inheritDoc}
