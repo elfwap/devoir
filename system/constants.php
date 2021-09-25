@@ -10,20 +10,20 @@ if (!defined('no')) define('no', false);
 #TIME
 if (!defined('SEC_SECOND')) define('SEC_SECOND', 1);
 if (!defined('SEC_MINUTE')) define('SEC_MINUTE', 60);
-if(!defined('SEC_HOUR')) define('SEC_HOUR', 3600);
-if(!defined('SEC_DAY')) define('SEC_DAY', 86400);
-if(!defined('SEC_WEEK')) define('SEC_WEEK', 604800);
-if(!defined('SEC_MONTH')) define('SEC_MONTH', 2592000);
-if(!defined('SEC_YEAR')) define('SEC_YEAR', 31536000);
-if(!defined('MIL_SECOND')) define('MIL_SECOND', 1000);
-if(!defined('MIL_MINUTE')) define('MIL_MINUTE', 60000);
-if(!defined('MIL_HOUR')) define('MIL_HOUR', 3600000);
-if(!defined('MIL_DAY')) define('MIL_DAY', 86400000);
-if(!defined('MIL_WEEK')) define('MIL_WEEK', 604800000);
-if(!defined('MIL_MONTH')) define('MIL_MONTH', 2592000000);
-if(!defined('MIL_YEAR')) define('MIL_YEAR', 31536000000);
+if (!defined('SEC_HOUR')) define('SEC_HOUR', 3600);
+if (!defined('SEC_DAY')) define('SEC_DAY', 86400);
+if (!defined('SEC_WEEK')) define('SEC_WEEK', 604800);
+if (!defined('SEC_MONTH')) define('SEC_MONTH', 2592000);
+if (!defined('SEC_YEAR')) define('SEC_YEAR', 31536000);
+if (!defined('MIL_SECOND')) define('MIL_SECOND', 1000);
+if (!defined('MIL_MINUTE')) define('MIL_MINUTE', 60000);
+if (!defined('MIL_HOUR')) define('MIL_HOUR', 3600000);
+if (!defined('MIL_DAY')) define('MIL_DAY', 86400000);
+if (!defined('MIL_WEEK')) define('MIL_WEEK', 604800000);
+if (!defined('MIL_MONTH')) define('MIL_MONTH', 2592000000);
+if (!defined('MIL_YEAR')) define('MIL_YEAR', 31536000000);
 //APPLICATION PROPERTIES
-if(!defined('APPLICATION_NAMESPACE')){
+if (!defined('APPLICATION_NAMESPACE')) {
 	define('APPLICATION_NAMESPACE', 'App\\');
 }
 if (!defined('CONTROLLERS_NAMESPACE')) {
@@ -35,10 +35,10 @@ if (!defined('MODELS_NAMESPACE')) {
 if (!defined('VIEWS_NAMESPACE')) {
 	define('VIEWS_NAMESPACE', APPLICATION_NAMESPACE . 'Views\\');
 }
-if(!defined('IS_DEBUG')){
+if (!defined('IS_DEBUG')) {
 	define('IS_DEBUG', true);
 }
-if(!defined('DEFAULT_CONTROLLER')){
+if (!defined('DEFAULT_CONTROLLER')) {
 	define('DEFAULT_CONTROLLER', 'AppController');
 }
 if (!defined('DEFAULT_ACTION')) {
@@ -92,37 +92,45 @@ define('INSUFFICIENT_STORAGE_EXCEPTION_CODE', 1507);
 define('LOOP_DETECTED_EXCEPTION_CODE', 1508);
 define('NOT_EXTENDED_EXCEPTION_CODE', 1510);
 define('NETWORK_AUTHENTICATION_REQUIRED_EXCEPTION_CODE', 1511);
+# FOR REDIRECT RESPONSE
+define('MULTIPLE_CHOICE_EXCEPTION_CODE', 1300);
+define('MOVED_PERMANENTLY_EXCEPTION_CODE', 1301);
+define('MOVED_TEMPORARILY_EXCEPTION_CODE', 1302);
+define('SEE_OTHER_EXCEPTION_CODE', 1303);
+define('NOT_MODIFIED_EXCEPTION_CODE', 1304);
+define('USE_PROXY_EXCEPTION_CODE', 1305);
+define('SWITCH_PROXY_EXCEPTION_CODE', 1306);
+define('TEMPORARY_REDIRECT_EXCEPTION_CODE', 1307);
+define('PERMANENT_REDIRECT_EXCEPTION_CODE', 1308);
 //PATHS
 define('DS', DIRECTORY_SEPARATOR);
 define('ROOT_PATH', $_SERVER['DOCUMENT_ROOT']);
-if(!defined('BASE_PATH') || !defined('BASE_SOURCE_PATH')){
+if (!defined('BASE_PATH') || !defined('BASE_SOURCE_PATH')) {
 	$a = str_replace(ROOT_PATH, "", dirname(__FILE__));
 	$a = str_replace('\/', DS, $a);
 	$a = trim($a, DS);
 	$b = 0;
 	$a = str_replace(DS . 'vendor' . DS . 'elfwap' . DS . 'devoir' . DS . 'system', "", $a, $b);
-	if($b < 1){
-		if(!defined('BASE_PATH')) define('BASE_PATH', ROOT_PATH);
-		if(!defined('BASE_SOURCE_PATH')) define('BASE_SOURCE_PATH', ROOT_PATH . DS . 'src');
-	}
-	else{
-		if(!defined('BASE_PATH')) define('BASE_PATH', $a);
-		if(strlen($a) < 1){
-			if(!defined('BASE_SOURCE_PATH')) define('BASE_SOURCE_PATH', ROOT_PATH . DS . 'src');
-		}
-		elseif(strlen($a) > 0){
-			if(!defined('BASE_SOURCE_PATH')) define('BASE_SOURCE_PATH', ROOT_PATH . DS . $a . DS . 'src');
+	if ($b < 1) {
+		if (!defined('BASE_PATH')) define('BASE_PATH', ROOT_PATH);
+		if (!defined('BASE_SOURCE_PATH')) define('BASE_SOURCE_PATH', ROOT_PATH . DS . 'src');
+	} else {
+		if (!defined('BASE_PATH')) define('BASE_PATH', $a);
+		if (strlen($a) < 1) {
+			if (!defined('BASE_SOURCE_PATH')) define('BASE_SOURCE_PATH', ROOT_PATH . DS . 'src');
+		} elseif (strlen($a) > 0) {
+			if (!defined('BASE_SOURCE_PATH')) define('BASE_SOURCE_PATH', ROOT_PATH . DS . $a . DS . 'src');
 		}
 	}
 }
-if(!defined('CONTROLLERS_PATH')){
+if (!defined('CONTROLLERS_PATH')) {
 	define('CONTROLLERS_PATH', (empty(BASE_SOURCE_PATH) ? BASE_SOURCE_PATH : (BASE_SOURCE_PATH . DS)) . "Controllers" . DS);
 }
 
-if(!defined('MODELS_PATH')){
+if (!defined('MODELS_PATH')) {
 	define('MODELS_PATH', (empty(BASE_SOURCE_PATH) ? BASE_SOURCE_PATH : (BASE_SOURCE_PATH . DS)) . "Models" . DS);
 }
-if(!defined('VIEWS_PATH')){
+if (!defined('VIEWS_PATH')) {
 	define('VIEWS_PATH', (empty(BASE_SOURCE_PATH) ? BASE_SOURCE_PATH : (BASE_SOURCE_PATH . DS)) . "Views" . DS);
 }
 //URL CONFIG
@@ -143,7 +151,7 @@ define('RESPONSE_CODE_MISC_WARNING', 199);
 define('RESPONSE_CODE_OK', 200);
 define('RESPONSE_CODE_CREATED', 201);
 define('RESPONSE_CODE_ACCEPTED', 202);
-define('RESPONSE_CODE_NON_AUTHORATATIVE_INFO', 203);
+define('RESPONSE_CODE_NON_AUTHORITATIVE_INFO', 203);
 define('RESPONSE_CODE_NO_CONTENT', 204);
 define('RESPONSE_CODE_RESET_CONTENT', 205);
 define('RESPONSE_CODE_PARTIAL_CONTENT', 206);
@@ -151,7 +159,7 @@ define('RESPONSE_CODE_MULTI_STATUS', 207);
 define('RESPONSE_CODE_ALREADY_REPORTED', 208);
 //Caching Warning Codes
 define('RESPONSE_CODE_TRANSFORMATION_APPLIED', 214);
-define('RESPONSE_CODE_MISC_PERSITENT_WARNING', 299);
+define('RESPONSE_CODE_MISC_PERSISTENT_WARNING', 299);
 define('RESPONSE_CODE_INSTANCE_MANIPULATIONS_USED', 226);
 #3XX
 define('RESPONSE_CODE_MULTIPLE_CHOICES', 300);

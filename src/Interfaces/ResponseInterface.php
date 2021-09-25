@@ -19,7 +19,7 @@ interface ResponseInterface
 	 * @param string $reason
 	 * @return ResponseInterface
 	 */
-	public function redirectToLocation(?string $location, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY, ?string $reason = null): ResponseInterface;
+	public function redirectToLocation(?string $location, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface;
 	/**
 	 * 
 	 * Redirect to another controller with different action and parameters with reason
@@ -28,15 +28,15 @@ interface ResponseInterface
 	 * @param string $reason
 	 * @return ResponseInterface
 	 */
-	public function redirectToController(?array $uriArray, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY, ?string $reason = null): ResponseInterface;
+	public function redirectToController(?array $uriArray, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface;
 	/**
 	 * 
 	 * Redirect to another action in the same controller with reason
 	 * @param string $action
-	 * @param string $reason
+	 * @param array $params
 	 * @return ResponseInterface
 	 */
-	public function redirectToAction(?string $action, ?string $reason): ResponseInterface;
+	public function redirectToAction(?string $action, array $params = []): ResponseInterface;
 	/**
 	 * 
 	 * Set response status code
