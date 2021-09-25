@@ -1,4 +1,5 @@
 <?php
+
 namespace Devoir\Exception;
 
 use \Throwable;
@@ -22,18 +23,18 @@ class Server5XXException extends DevoirException
 	 */
 	public function __construct($message = null, int $code = null, Throwable $previous = null)
 	{
-		if(is_array($message) && count($message) == 2){
+		if (is_array($message) && count($message) == 2) {
 			$msg = "";
 			$cod = 0;
-			if(array_key_exists('message', $message)) $msg = $message['message'];
-			elseif(array_key_exists('Message', $message)) $msg = $message['Message'];
+			if (array_key_exists('message', $message)) $msg = $message['message'];
+			elseif (array_key_exists('Message', $message)) $msg = $message['Message'];
 			else $msg = $message[0];
-			if(array_key_exists('code', $message)) $cod = $message['code'];
-			elseif(array_key_exists('Code', $message)) $cod = $message['Code'];
+			if (array_key_exists('code', $message)) $cod = $message['code'];
+			elseif (array_key_exists('Code', $message)) $cod = $message['Code'];
 			else $cod = $message[1];
 			$message = [$msg];
 			switch ($cod) {
-				#500
+					#500
 				case RESPONSE_CODE_INTERNAL_SERVER_ERROR:
 					$this->code = INTERNAL_SERVER_ERROR_EXCEPTION_CODE;
 					$this->template = 'Internal Server Error! Additional Info: %s.';
@@ -60,7 +61,7 @@ class Server5XXException extends DevoirException
 					break;
 				case RESPONSE_CODE_VARIANT_ALSO_NEGOTIATES:
 					$this->code = VARIANT_ALSO_NEGOTIATES_EXCEPTION_CODE;
-					$this->template = 'Variant alse Negotiates! Addtional Info: %s.';
+					$this->template = 'Variant also Negotiates! Additional Info: %s.';
 					break;
 				case RESPONSE_CODE_INSUFFICIENT_STORAGE:
 					$this->code = INSUFFICIENT_STORAGE_EXCEPTION_CODE;
@@ -72,24 +73,22 @@ class Server5XXException extends DevoirException
 					break;
 				case RESPONSE_CODE_NOT_EXTENDED:
 					$this->code = NOT_EXTENDED_EXCEPTION_CODE;
-					$this->template = 'Not Extented! Additional Info: %s.';
+					$this->template = 'Not Extended! Additional Info: %s.';
 					break;
 				case RESPONSE_CODE_NETWORK_AUTHENTICATION_REQUIRED:
 					$this->code = NETWORK_AUTHENTICATION_REQUIRED_EXCEPTION_CODE;
-					$this->template = 'Network Authentication Required! Addtional Info: %s.';
+					$this->template = 'Network Authentication Required! Additional Info: %s.';
 					break;
 				default:
 					$this->code = $cod + 1000;
 					$this->template = 'Unknown Server Error: Additional Info: %s.';
-				break;
+					break;
 			}
 			http_response_code($cod);
-		}
-		elseif((is_string($message) && !empty($message)) && (is_numeric($code) && $code > 1499 && $code < 1600)){
+		} elseif ((is_string($message) && !empty($message)) && (is_numeric($code) && $code > 1499 && $code < 1600)) {
 			$this->template = "Server Error: %s.";
 			http_response_code(($code - 1000));
-		}
-		else{
+		} else {
 			throw new DevoirException("Argument must be a string or an array containing Two (2) items.");
 		}
 		parent::__construct($message, $code, $previous);
