@@ -34,47 +34,57 @@ class Server5XXException extends DevoirException
 			else $cod = $message[1];
 			$message = [$msg];
 			switch ($cod) {
-					#500
+				#500
 				case RESPONSE_CODE_INTERNAL_SERVER_ERROR:
 					$this->code = INTERNAL_SERVER_ERROR_EXCEPTION_CODE;
 					$this->template = 'Internal Server Error! Additional Info: %s.';
 					break;
+				#501
 				case RESPONSE_CODE_NOT_IMPLEMENTED:
 					$this->code = NOT_IMPLEMENTED_EXCEPTION_CODE;
 					$this->template = 'Not Implemented! Additional Info: %s.';
 					break;
+				#502
 				case RESPONSE_CODE_BAD_GATEWAY:
 					$this->code = BAD_GATEWAY_EXCEPTION_CODE;
 					$this->template = 'Bad Gateway! Additional Info: %s.';
 					break;
+				#503
 				case RESPONSE_CODE_SERVICE_UNAVAILABLE:
 					$this->code = SERVICE_UNAVAILABLE_EXCEPTION_CODE;
 					$this->template = 'Service Unavailable! Additional Info: %s.';
 					break;
+				#504
 				case RESPONSE_CODE_GATEWAY_TIMEOUT:
 					$this->code = GATEWAY_TIMEOUT_EXCEPTION_CODE;
 					$this->template = 'Gateway Timeout! Additional Info: %s.';
 					break;
+				#505
 				case RESPONSE_CODE_HTTP_VERSION_NOT_SUPPORTED:
 					$this->code = HTTP_VERSION_NOT_SUPPORTED_EXCEPTION_CODE;
 					$this->template = 'HTTP Version Not Supported! Additional Info: %s.';
 					break;
+				#506
 				case RESPONSE_CODE_VARIANT_ALSO_NEGOTIATES:
 					$this->code = VARIANT_ALSO_NEGOTIATES_EXCEPTION_CODE;
 					$this->template = 'Variant also Negotiates! Additional Info: %s.';
 					break;
+				#507
 				case RESPONSE_CODE_INSUFFICIENT_STORAGE:
 					$this->code = INSUFFICIENT_STORAGE_EXCEPTION_CODE;
 					$this->template = 'Insufficient Storage! Additional Info %s.';
 					break;
+				#508
 				case RESPONSE_CODE_LOOP_DETECTED:
 					$this->code = LOOP_DETECTED_EXCEPTION_CODE;
 					$this->template = 'Loop Detected! Additional Info: %s.';
 					break;
+				#510
 				case RESPONSE_CODE_NOT_EXTENDED:
 					$this->code = NOT_EXTENDED_EXCEPTION_CODE;
 					$this->template = 'Not Extended! Additional Info: %s.';
 					break;
+				#511
 				case RESPONSE_CODE_NETWORK_AUTHENTICATION_REQUIRED:
 					$this->code = NETWORK_AUTHENTICATION_REQUIRED_EXCEPTION_CODE;
 					$this->template = 'Network Authentication Required! Additional Info: %s.';

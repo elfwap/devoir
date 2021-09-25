@@ -25,7 +25,6 @@ class BadRequestException extends DevoirException
 		if(is_array($message) && count($message) > 1){
 			throw new DevoirException("Array argument must contain One (1) item or no argument. `" . count($message) . "` given.");
 		}
-		
 		if(is_array($message) && count($message) == 1){
 			if(is_string($message[0]) && !empty($message[0])) $this->template = "Bad Request! Additional Info: %s.";
 		}
