@@ -32,6 +32,7 @@ class Client4XXException extends DevoirException
 			elseif(array_key_exists('Code', $message)) $cod = $message['Code'];
 			else $cod = $message[1];
 			$message = [$msg];
+			if($cod > 499 || $cod < 400) throw new DevoirException('Expected code from 400 to 499, ' . $cod . ' supplied!');
 			switch ($cod) {
 				#400
 				case RESPONSE_CODE_BAD_REQUEST:
