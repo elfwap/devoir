@@ -32,7 +32,7 @@ class Application
 			if(is_file($devoirConstants) && file_exists($devoirConstants)) require_once $devoirConstants;
 			if(is_file($devoirFunctions) && file_exists($devoirFunctions)) require_once $devoirFunctions;
 		}
-		$controller = new Controller();
+		$controller = new Controller(null, null, [], $systemDir);
 		$controller->run();
 	}
 }
