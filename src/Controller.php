@@ -7,6 +7,7 @@ use \ReflectionFunction;
 use \ReflectionMethod;
 use \Closure;
 use \ArgumentCountError;
+use \TypeError;
 use Devoir\Exception\MissingControllerException;
 use Devoir\Exception\MissingActionException;
 use Devoir\Interfaces\ControllerInterface;
@@ -39,10 +40,10 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	protected $controller = DEFAULT_CONTROLLER;
 	/**
-	 * Fully-qualified controller's name
-	 * @var string
+	 * 
+	 * @var string Fully-qualified controller's name
 	 */
-	private $fqController = CONTROLLERS_NAMESPACE . DEFAULT_CONTROLLER;
+	private string $fqController = CONTROLLERS_NAMESPACE . DEFAULT_CONTROLLER;
 	/**
 	 *
 	 * @var string
@@ -104,51 +105,78 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	protected string $response_message = "";
 	/**
+	 * 
+	 * @var object $config store loaded configuration data for entire runtime.
+	 */
+	protected object $config; 
+	/**
 	 *
 	 * @param mixed $controller
 	 * @param string $action
 	 * @param array $params
 	 */
-	final public function __construct($controller = null, $action = null, array $params = array())
+	final public function __construct($controller = null, $action = null, array $params = array(), $systemDir = null)
 	{
+		$this->config = new Configuration($systemDir);
 		$this->path = $_SERVER['HTTP_HOST'];
 		if (is_string($controller) && !empty($controller)) {
 			$this->path .= '/' . $controller;
 			$this->setController($controller);
 		} elseif (is_array($controller) && !empty($controller)) {
-			if (array_key_exists('controller', $controller)) {
-				$this->path .= '/' . $controller['controller'];
-				$this->setController($controller['controller']);
-			} elseif (array_key_exists('Controller', $controller)) {
-				$this->path .= '/' . $controller['Controller'];
-				$this->setController($controller['Controller']);
-			} else {
-				@list($controllerx, $actionx, $paramsx) = $controller;
-				$this->path .= '/' . $controllerx;
-				$this->setController($controllerx);
-			}
-			if (array_key_exists('action', $controller)) {
-				$this->path .= '/' . $controller['action'];
-				$this->setAction($controller['action']);
-			} elseif (array_key_exists('Action', $controller)) {
-				$this->path .= '/' . $controller['Action'];
-				$this->setAction($controller['Action']);
-			} else {
-				@list($controllerx, $actionx, $paramsx) = $controller;
-				$this->path .= '/' . $actionx;
-				$this->setAction($actionx);
-			}
+			$cnt = 1;
+			foreach ($controller as $value) {
+				if(array_key_exists('controller', $controller)){
+					$this->path .= '/' . $controller['controller'];
+					$this->setController($controller['controller']);
+				}
+				elseif(array_key_exists('Controller', $controller)){
+					$this->path .= '/' . $controller['Controller'];
+					$this->setController($controller['Controller']);
+				}
+				elseif($cnt === 1){
+					$this->path .= '/' . $value;
+					$this->setController($value);
+				}
+	
+				if(array_key_exists('action', $controller)){
+					$this->path .= '/' . $controller['action'];
+					$this->setAction($controller['action']);
+				}
+				elseif(array_key_exists('Action', $controller)){
+					$this->path .= '/' . $controller['Action'];
+					$this->setAction($controller['Action']);
+				}
+				elseif($cnt === 2){
+					$this->path .= '/' . $value;
+					$this->setAction($value);
+				}
+			
+				if(array_key_exists('params', $controller)){
+					if(!is_array($prms = $controller['params'])) $controller['params'] = [$prms];
+					$this->path .= '/' . implode('/', $controller['params']);
+					$this->setParams($controller['params']);
+				}
+				elseif(array_key_exists('param', $controller)){
+					if(!is_array($prms = $controller['param'])) $controller['param'] = [$prms];
+					$this->path .= '/' . implode('/', $controller['param']);
+					$this->setParams($controller['param']);
+				}
+				elseif(array_key_exists('Params', $controller)){
+					if(!is_array($prms = $controller['Params'])) $controller['Params'] = [$prms];
+					$this->path .= '/' . implode('/', $controller['Params']);
+					$this->setParams($controller['Params']);
+				}
+				elseif(array_key_exists('Param', $controller)){
+					if(!is_array($prms = $controller['Param'])) $controller['Param'] = [$prms];
+					$this->path .= '/' . implode('/', $controller['Param']);
+					$this->setParams($controller['Param']);
+				}
+				elseif($cnt === 3){
+					$this->path .= '/' . implode('/', $value);
+					$this->setParams($value);
+				}
 
-			if (array_key_exists('params', $controller)) {
-				$this->path .= '/' . implode('/', $controller['params']);
-				$this->setParams($controller['params']);
-			} elseif (array_key_exists('Params', $controller)) {
-				$this->path .= '/' . implode('/', $controller['Params']);
-				$this->setParams($controller['Params']);
-			} else {
-				@list($controllerx, $actionx, $paramsx) = $controller;
-				$this->path .= '/' . implode('/', $paramsx);
-				$this->setParams($paramsx);
+				$cnt += 1;
 			}
 		}
 		if (!is_null($action) && !empty($action)) {
@@ -172,7 +200,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$this->registerListener(EVENT_CONTROLLER_AFTER_RUNUP, EVENT_CONTROLLER_AFTER_RUNUP);
 		$this->registerListener(EVENT_CONTROLLER_BEFORE_DISPATCH, EVENT_CONTROLLER_BEFORE_DISPATCH);
 		$this->registerListener(EVENT_CONTROLLER_AFTER_DISPATCH, EVENT_CONTROLLER_AFTER_DISPATCH);
-		if ($this->controller == DEFAULT_CONTROLLER) {
+		if ($this->controller == $this->config->get('app', 'default_controller')) {
 			$this->parseURI();
 		}
 		if (class_exists($this->fqController)) {
@@ -208,15 +236,20 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	{
 		try {
 			$this->dispatchEvent(EVENT_CONTROLLER_BEFORE_RUNUP);
+			$events = $this->getImplementedListeners();
+			foreach ($events as $value) {
+				if($value == $this->action){
+					if(!$this->config->get('is_debug')) throw new NotFoundException([$this->path]);
+					throw new BadRequestException(['Method `' . $this->action . '` is an event listener method, only invoked when specific event occurs']);
+				}
+			}
 			$reflect = new ReflectionClass($this->fqController);
 			$reflectm = new ReflectionMethod($this->fqController . '::' . $this->action);
 			$x = $reflectm->invokeArgs($reflect->newInstanceWithoutConstructor(), $this->actionParams);
 			if ($x instanceof ResponseInterface) {
 				$this->response = $x;
 				if ($this->response->isRedirect()) {
-					$code = $this->response->getStatusCode();
-					$location = $this->response->getLocation();
-					throw new Redirect3XXException([]);
+					throw new Redirect3XXException([$this->response->getLocation(), $this->response->getStatusCode()]);
 				}
 				if ($this->response->isClientError()) {
 					throw new Client4XXException([$this->response->getMessage(), $this->response->getStatusCode()]);
@@ -229,7 +262,12 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			//TODO render view
 			$this->dispatchEvent(EVENT_CONTROLLER_AFTER_RUNUP);
 		} catch (ArgumentCountError $acerr) {
+			if(!$this->config->get('is_debug')) throw new BadRequestException();
 			throw new DevoirException('Argument Count Error: ' . $reflectm->getNumberOfRequiredParameters() . ' Argument(s) required, ' . count($this->actionParams) . ' Supplied. on line [' . $acerr->getLine() . '] in file (' . explode(DS, $acerr->getFile())[count(explode(DS, $acerr->getFile())) - 1] . ')');
+		}
+		catch (TypeError $tperr) {
+			if(!$this->config->get('is_debug')) throw new BadRequestException();
+			throw new DevoirException($tperr->getMessage() . '. on line [' . $tperr->getLine() . ']. in file (' . explode(DS, $tperr->getFile())[count(explode(DS, $tperr->getFile())) - 1] . ')');
 		}
 	}
 	/**
@@ -244,10 +282,10 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		}
 		$controllerName = ucfirst(strtolower($controllerName)) . "Controller";
 		$controllerName = $this->dashedToCamelCase($controllerName);
-		$filename = rtrim(CONTROLLERS_PATH, DS) . DS . $controllerName . '.php';
-		$classname = CONTROLLERS_NAMESPACE . $controllerName;
+		$filename = rtrim($this->config->get('app', 'controller.path'), DS) . DS . $controllerName . '.php';
+		$classname = $this->config->get('app', 'controller.namespace') . $controllerName;
 		if (!file_exists($filename)) {
-			if (IS_DEBUG) {
+			if ($this->config->get('is_debug')) {
 				throw new MissingControllerException([$controllerName, "File [" . $filename . "] not found"]);
 			}
 			throw new NotFoundException([$this->path]);
@@ -271,8 +309,8 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	final public function setAction($actionName)
 	{
 		$actionName = $this->dashedToCamelCase($actionName);
-		if ($this->fqController == CONTROLLERS_NAMESPACE . DEFAULT_CONTROLLER && $this->controller == DEFAULT_CONTROLLER) {
-			if (IS_DEBUG) {
+		if ($this->fqController == $this->config->get('app', 'controller.namespace') . $this->config->get('app', 'default_controller') && $this->config->get('app', 'default_controller')) {
+			if ($this->config->get('is_debug')) {
 				throw new MissingControllerException([$this->controller, "URI not resolved"]);
 			}
 			throw new BadRequestException(["URI not resolved"]);
@@ -280,14 +318,14 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		if (class_exists($this->fqController)) {
 			$reflect = new ReflectionClass($this->fqController);
 			if (!$reflect->hasMethod($actionName)) {
-				if (IS_DEBUG) {
+				if ($this->config->get('is_debug')) {
 					throw new MissingActionException([$actionName, $this->controller, "Method not defined"]);
 				}
 				throw new NotFoundException([$this->path]);
 			}
 			$this->action = $actionName;
 		} else {
-			if (IS_DEBUG) {
+			if ($this->config->get('is_debug')) {
 				throw new MissingControllerException([$this->controller, "Class [" . $this->fqController . "] not found"]);
 			}
 			throw new NotFoundException([$this->path]);
@@ -351,7 +389,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		if (isset($action)) {
 			$this->setAction($action);
 		} else {
-			$this->setAction(DEFAULT_ACTION);
+			$this->setAction($this->config->get('app', 'default_action'));
 		}
 		if (isset($params)) {
 			$this->setParams(explode("/", $params));
@@ -571,7 +609,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	public function redirectToLocation(?string $location, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface
 	{
-		$this->setLocation($location);
+		preg_match("(((ht|f)(tp)?s?://)?((\w)+\.)?(\w)+\.(\w){2,15}(\.(\w){2})?)", $location, $xd);
+		if(count($xd) > 0) $this->setLocation($location);
+		else $this->setLocation(strtolower(str_replace('//', '/', '/' . $location)));
 		$this->setStatusCode($statusCode);
 		return $this;
 	}
@@ -618,43 +658,36 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	public function redirectToController(?array $uriArray, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface
 	{
 		if(empty($uriArray)){
-			throw new BadRequestException(IS_DEBUG ? ["Redirecting to empty controller"] : null);
+			throw new BadRequestException($this->config->get('is_debug') ? ["Redirecting to empty controller"] : null);
 		}
 		$this->setStatusCode($statusCode);
 		$ctrl = "";
 		$actn = "";
-		$prms = [];
-		if(array_key_exists('Controller', $uriArray)){
-			$ctrl = $uriArray['Controller'];
-		}
-		elseif(array_key_exists('controller', $uriArray)){
-			$ctrl = $uriArray['controller'];
-		}
-		else{
-			if(count($uriArray) >= 1) $ctrl = $uriArray[0];
-		}
-		if(array_key_exists('Action', $uriArray)){
-			$actn = $uriArray['Action'];
-		}
-		elseif(array_key_exists('action', $uriArray)){
-			$actn = $uriArray['action'];
-		}
-		else{
-			if(count($uriArray) == 2) $actn = $uriArray[1];
-		}
-		if(array_key_exists('Params', $uriArray)){
-			$prms = $uriArray['Params'];
-		}
-		elseif(array_key_exists('params', $uriArray)){
-			$prms = $uriArray['params'];
-		}
-		else{
-			if(count($uriArray) == 3) $prms = $uriArray[2];
+		$prms = "";
+		$cnt = 1;
+		foreach ($uriArray as $value) {
+			if(array_key_exists('controller', $uriArray)) $ctrl = $uriArray['controller'];
+			elseif(array_key_exists('Controller', $uriArray)) $ctrl = $uriArray['Controller'];
+			elseif($cnt === 1) $ctrl = $value;
+
+			if(array_key_exists('action', $uriArray)) $actn = $uriArray['action'];
+			elseif(array_key_exists('Action', $uriArray)) $actn = $uriArray['Action'];
+			elseif($cnt === 2) $actn = $value;
+
+			if(array_key_exists('params', $uriArray)) $prms = $uriArray['params'];
+			elseif(array_key_exists('Params', $uriArray)) $prms = $uriArray['Params'];
+			elseif(array_key_exists('param', $uriArray)) $prms = $uriArray['param'];
+			elseif(array_key_exists('Param', $uriArray)) $prms = $uriArray['Param'];
+			elseif($cnt === 3) $prms = $value;
+
+			$cnt += 1;
 		}
 		if(is_array($prms) && !empty($prms)){
 			$prms = implode('/', $prms);
 		}
-		$this->setLocation(implode('/', [$ctrl, $actn, $prms]));
+		$ctrl = strtolower($ctrl);
+		$actn = strtolower($actn);
+		$this->setLocation('/' . implode('/', [$ctrl, $actn, $prms]));
 		return $this;
 	}
 	/**
@@ -675,9 +708,10 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	{
 		$this->setStatusCode(RESPONSE_CODE_MOVED_TEMPORARILY);
 		$prms = (!empty($params)) ? implode('/', $params) : "";
-		$ctrl = str_replace('Controller', '', $this->controller);
-		$loc = [$ctrl, $action, $params];
-		$this->setLocation(implode('/', $loc));
+		
+		$ctrl = strtolower(str_replace('Controller', '', explode(DS, static::class)[count(explode(DS, static::class)) - 1]));
+		$loc = [$ctrl, $action, $prms];
+		$this->setLocation(strtolower(str_replace('//', '/', '/' . implode('/', $loc))));
 		return $this;
 	}
 	/**
