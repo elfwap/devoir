@@ -33,6 +33,7 @@ class Server5XXException extends DevoirException
 			elseif (array_key_exists('Code', $message)) $cod = $message['Code'];
 			else $cod = $message[1];
 			$message = [$msg];
+			if($cod > 599 || $cod < 500) throw new DevoirException('Expected code from 500 to 599, ' . $cod . ' supplied!');
 			switch ($cod) {
 				#500
 				case RESPONSE_CODE_INTERNAL_SERVER_ERROR:
