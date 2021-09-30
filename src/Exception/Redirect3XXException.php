@@ -1,4 +1,5 @@
 <?php
+
 namespace Devoir\Exception;
 
 use \Throwable;
@@ -13,9 +14,9 @@ use \Throwable;
  *
  */
 
- class Redirect3XXException extends DevoirException
- {
-	 /**
+class Redirect3XXException extends DevoirException
+{
+	/**
 	 *
 	 * @param mixed $message
 	 * @param int $code
@@ -23,33 +24,71 @@ use \Throwable;
 	 */
 	public function __construct($message = null, int $code = null, Throwable $previous = null)
 	{
-        if (is_array($message) && count($message) == 3) {
+		if (is_array($message) && count($message) == 2) {
 			$loc = "";
-            $msg = "";
-            $cod = 0;
-            if (array_key_exists('message', $message)) {
-                $msg = $message['message'];
-            } elseif (array_key_exists('Message', $message)) {
-                $msg = $message['Message'];
-            } else {
-                $msg = $message[0];
-            }
-            if (array_key_exists('code', $message)) {
-                $cod = $message['code'];
-            } elseif (array_key_exists('Code', $message)) {
-                $cod = $message['Code'];
-            } else {
-                $cod = $message[1];
-            }
-            $message = [$msg];
-            switch ($cod) {
-				
+			$cod = 0;
+			if (array_key_exists('location', $message)) {
+				$loc = $message['location'];
+			} elseif (array_key_exists('Location', $message)) {
+				$loc = $message['Location'];
+			} else {
+				$loc = $message[0];
+			}
+			if (array_key_exists('code', $message)) {
+				$cod = $message['code'];
+			} elseif (array_key_exists('Code', $message)) {
+				$cod = $message['Code'];
+			} else {
+				$cod = $message[1];
+			}
+			if($cod > 399 || $cod < 300) throw new DevoirException('Expected code from 300 to 399, ' . $cod . ' supplied!');
+			switch ($cod) {
+				#300
 				case RESPONSE_CODE_MULTIPLE_CHOICES:
 					$this->code = MULTIPLE_CHOICE_EXCEPTION_CODE;
-					$this->template = 'MUltiple choices. Additional Info: %s.';
 					break;
-				
-            }
-        }
+				#301
+				case RESPONSE_CODE_MOVED_PERMANENTLY:
+					$this->code = MOVED_PERMANENTLY_EXCEPTION_CODE;
+					break;
+				#302
+				case RESPONSE_CODE_MOVED_TEMPORARILY:
+					$this->code = MOVED_TEMPORARILY_EXCEPTION_CODE;
+					break;
+				#303
+				case RESPONSE_CODE_SEE_OTHER:
+					$this->code = SEE_OTHER_EXCEPTION_CODE;
+					break;
+				#304
+				case RESPONSE_CODE_NOT_MODIFIED:
+					$this->code = NOT_MODIFIED_EXCEPTION_CODE;
+					break;
+				#305
+				case RESPONSE_CODE_USE_PROXY:
+					$this->code = USE_PROXY_EXCEPTION_CODE;
+					break;
+				#306
+				case RESPONSE_CODE_SWITCH_PROXY:
+					$this->code = SWITCH_PROXY_EXCEPTION_CODE;
+					break;
+				#307
+				case RESPONSE_CODE_TEMPORARY_REDIRECT:
+					$this->code = TEMPORARY_REDIRECT_EXCEPTION_CODE;
+					break;
+				#308
+				case RESPONSE_CODE_PERMANENT_REDIRECT:
+					$this->code = PERMANENT_REDIRECT_EXCEPTION_CODE;
+					break;
+				default:
+					$this->code = $cod + 1000;
+					break;
+			}
+			header('location: ' . $loc, yes, $cod);
+			parent::__construct($message, $code, $previous);
+			die();
+		}
+		else {
+			throw new DevoirException("Argument must be a string or an array containing Two (2) items.");
+		}
 	}
- }
+}
