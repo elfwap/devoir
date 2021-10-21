@@ -34,8 +34,8 @@ use \stdClass;
 		if(is_dir($systemDir)){
 			$configs = $systemDir . DIRECTORY_SEPARATOR . 'configs.php';
 			$config = array();
-			if(is_file($configs) && file_exists($configs)){
-				$configs = require $configs;
+			if(file_exists($configs)){
+				$configs = require($configs);
 				foreach ($configs as $key => $value) {
 					$config[$key] = $value;
 				}
@@ -45,9 +45,8 @@ use \stdClass;
 		if(is_dir($devoirSystemDir)){
 			$devoirConfigs = $devoirSystemDir . DIRECTORY_SEPARATOR . 'configs.php';
 			$this->config = array();
-			if(is_file($devoirConfigs) && file_exists($devoirConfigs)){
-				$devoirConfigs = (require $devoirConfigs);
-				
+			if(file_exists($devoirConfigs)){
+				$devoirConfigs = require($devoirConfigs);
 				foreach ($devoirConfigs as $key => $value) {
 					$this->config[$key] = $value;
 				}
@@ -67,7 +66,7 @@ use \stdClass;
 	public function set(string $key, $value = null, string $subkeys = null){
 		$jsonConfig = json_decode(json_encode($this->config));
 		$this->configs->{$key} = &$jsonConfig->{$key};
-		if(!is_null($subkeys) && !empty($subkeys)){
+		if(!isNull($subkeys) && !empty($subkeys)){
 			$sk = explode('.', $subkeys);
 			$ts = $key;
 			foreach ($sk as $skey => $svalue) {
@@ -101,7 +100,7 @@ use \stdClass;
 			$jsonConfig = json_decode(json_encode($this->config));
 		}
 		$this->configs->{$key} = &$jsonConfig->{$key};
-		if(!is_null($subkeys) && !empty($subkeys)){
+		if(!isNull($subkeys) && !empty($subkeys)){
 			$sk = explode('.', $subkeys);
 			$ts = $key;
 			foreach ($sk as $skey => $svalue) {
