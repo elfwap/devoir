@@ -22,7 +22,7 @@ class DevoirException extends Exception
 	protected $template  = '%s';
 	/**
 	 * 
-	 * @var integer	excetion code
+	 * @var integer	exception code
 	 */
 	protected $code = 0;
 
