@@ -106,9 +106,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	protected string $response_message = "";
 	/**
 	 * 
-	 * @var object $config store loaded configuration data for entire runtime.
+	 * @var Devoir\Configuration $config store loaded configuration data for entire runtime.
 	 */
-	protected object $config; 
+	protected Configuration $config; 
 	/**
 	 *
 	 * @param mixed $controller
@@ -179,7 +179,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 				$cnt += 1;
 			}
 		}
-		if (!is_null($action) && !empty($action)) {
+		if (!isNull($action) && !empty($action)) {
 			$this->path .= '/' . $action;
 			$this->setAction($action);
 		}
@@ -367,9 +367,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		}
 		if ($this->urlType == URL_TYPE_QUERY) {
 			$path = trim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_QUERY), "/");
-			if (strpos($path, 'q=') === 0 || strpos($path, '&q=') > 0) {
-				if (strpos($path, '&q=') > 0) {
-					$path = substr($path, strpos($path, '&q=') + 1);
+			if (strpos($path, 'devoir=') === 0 || strpos($path, '&devoir=') > 0) {
+				if (strpos($path, '&devoir=') > 0) {
+					$path = substr($path, strpos($path, '&devoir=') + 1);
 				}
 				if (strpos($path, '&') > 0) {
 					$path = explode('&', $path)[0];
@@ -471,7 +471,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$listeners = $this->getListenersForEvent($event);
 		$exceptions = array();
 		foreach ($listeners as $listener) {
-			if (is_string($listener['callback']) && is_null($listener['object'])) {
+			if (is_string($listener['callback']) && isNull($listener['object'])) {
 				if (!in_array($listener['callback'], (array) $this->getImplementedListeners())) {
 					$exceptions[] = [$event, $listener['callback'], $this->fqController, "Callback not Implemented"];
 				}
@@ -486,7 +486,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 				} else {
 					$exceptions[] = [$event, $listener['callback'], $this->fqController, "Class not found"];
 				}
-			} elseif (is_callable($listener['callback']) && is_null($listener['object'])) {
+			} elseif (is_callable($listener['callback']) && isNull($listener['object'])) {
 				$reflect = new ReflectionFunction($listener['callback']);
 				$reflect->invokeArgs([$this]);
 			} elseif (is_callable($listener['callback']) && (is_object($listener['object']) || is_string($listener['object']))) {
