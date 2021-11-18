@@ -58,9 +58,9 @@ interface RequestInterface
 	/**
 	 * Set the query data to post request before dispatch.
 	 * @param string $data
-	 * @param mixed $value
+	 * @param mixed|array $value
 	 */
-	public function setData(?string $data, mixed $value);
+	public function setData(?string $data, $value);
 	/**
 	 * Get a single query data from post request
 	 * @param string|null $data
