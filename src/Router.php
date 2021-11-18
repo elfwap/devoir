@@ -1,17 +1,24 @@
 <?php
 namespace Devoir;
 
-use \ReflectionObject;
-use \stdClass;
 use Devoir\Interfaces\RequestInterface;
 
+/**
+ * Router class. Used when creating an abstract routing to an existing controller without visiting it
+ * @namespace Devoir
+ * @author Muhammad Tahir Abdullahi <muhammedtahirabdullahi@gmail.com>
+ * @copyright Copyright (c) Elftech Inc.
+ * @package elfwap/devoir
+ * @license https://opensource.org/licenses/mit-license.php MIT License
+ *
+ */
 class Router implements RequestInterface
 {
 	private array $route;
 	private string $controller;
 	private string $action;
 	private array $params;
-	public function __construct(string $systemDir)
+	public function __construct(string $systemDir = null)
 	{
 		if(is_dir($systemDir)){
 			$routes = $systemDir . DIRECTORY_SEPARATOR . 'routes.php';
@@ -19,7 +26,7 @@ class Router implements RequestInterface
 			if(file_exists($routes)){
 				$routes = require($routes);
 				foreach ($routes as $key => $value) {
-					$route[$key] = $value;
+					$this->route[$key] = $value;
 				}
 			}
 		}
@@ -30,14 +37,17 @@ class Router implements RequestInterface
 			if(file_exists($devoirRoutes)){
 				$devoirRoutes = require($devoirRoutes);
 				foreach ($devoirRoutes as $key => $value) {
-					$this->route[$key] = $value;
-				}
-				foreach ($route as $key => $value) {
+					if (array_key_exists($key, $this->route)) continue;
 					$this->route[$key] = $value;
 				}
 			}
 		}
 	}
+	/**
+	 * Matches the current request against the route(s)
+	 * Returns `TRUE` if matched else `FALSE`.
+	 * @return bool
+	 */
 	public function match(): bool
 	{
 		$controller_found = no;
@@ -93,6 +103,9 @@ class Router implements RequestInterface
 						$action_found = yes;
 					}
 				}
+				else {
+					$actn = $this->route[$key]['action'];
+				}
 				if (strpos($kvalue, 'p:=') === 0) {
 					if (count($pthexp) < 3) continue;
 					if ((explode(':=', $kvalue)[1] == $pthexp[2] || strpos($pthexp[2], explode(':=', $kvalue)[1]) === 0) && $params_found == NO) {
@@ -110,6 +123,9 @@ class Router implements RequestInterface
 						$prms = $this->route[$key]['params'];
 						$params_found = yes;
 					}
+				}
+				else {
+					$prms = $this->route[$key]['params'];
 				}
 				if (strpos($kvalue, 'q:=') === 0 && !empty($qryexp)) {
 					$controller_found = no;
@@ -134,7 +150,7 @@ class Router implements RequestInterface
 						}
 						if (preg_match(REG_EXP_PICKUP_PATH, $qresexp[0], $matches_pua2) === 1 && $action_found == NO) {
 							foreach (preg_grep('(^\d{1,2})', $matches_pua2) as $pua2_value) {
-								$keys[$pua2_value] = $qryexp[0];
+								if (array_key_exists(0, $qryexp) == YES) $keys[$pua2_value] = $qryexp[0];
 								$actn = $this->route[$key]['action'];
 								$action_found = yes;
 								break;
@@ -149,7 +165,8 @@ class Router implements RequestInterface
 						}
 						if (preg_match(REG_EXP_PICKUP_PATH_II, $qresexp[1], $matches_pup2) === 1 && $params_found == NO) {
 							$matches_pup2g = preg_grep('(^\d{1,2})', $matches_pup2);
-							$pup2exp = explode('/', $qryexp[1], count($matches_pup2g));
+							$pup2exp = [];
+							if (array_key_exists(1, $qryexp) == YES) $pup2exp = explode('/', $qryexp[1], count($matches_pup2g));
 							$minc = 0;
 							foreach ($matches_pup2g as $pup2_value) {
 								if (array_key_exists($minc, $pup2exp) === false) continue;
@@ -205,18 +222,35 @@ class Router implements RequestInterface
 		if ($controller_found || $action_found || $params_found) return YES;
 		return NO;
 	}
+	/**
+	 * Returns the `Controller` `string` for routing.
+	 * @return string
+	 */
 	public function getController(): string
 	{
 		return $this->controller;
 	}
+	/**
+	 * Returns the `Action` `string` for routing.
+	 * @return string
+	 */
 	public function getAction(): string
 	{
 		return $this->action;
 	}
+	/**
+	 * Returns an `iterable` of `Parameters` for routing.
+	 * @return iterable|array
+	 */
 	public function getParams(): iterable
 	{
 		return $this->params;
 	}
+	/**
+	 * Returns an iterable consisting of `Controller`, `Action` and `Parameters`,
+	 * To be used in routing.
+	 * @return iterable|array
+	 */
 	public function getAll(): iterable
 	{
 		return [
@@ -296,7 +330,7 @@ class Router implements RequestInterface
 	 * {@inheritDoc}
 	 * @see Devoir\Interfaces\RequestInterface::setData()
 	 */
-	public function setData(?string $data, mixed $value)
+	public function setData(?string $data, $value)
 	{
 		return $this;
 	}
