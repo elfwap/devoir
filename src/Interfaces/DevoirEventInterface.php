@@ -16,10 +16,10 @@ interface DevoirEventInterface
 	 * 
 	 * Register new Listener for the current event
 	 * @param string $event
-	 * @param string|callable $calback
+	 * @param string|callable $callback
 	 * @param object $object
 	 */
-	public function registerListener($event, $calback, $object = null);
+	public function registerListener($event, $callback, $object = null);
 	/**
 	 * 
 	 * @param string $event
