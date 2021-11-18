@@ -104,7 +104,7 @@ define('TEMPORARY_REDIRECT_EXCEPTION_CODE', 1307);
 define('PERMANENT_REDIRECT_EXCEPTION_CODE', 1308);
 //PATHS
 define('DS', DIRECTORY_SEPARATOR);
-define('ROOT_PATH', $_SERVER['DOCUMENT_ROOT']);
+define('ROOT_PATH', str_replace('/', DS, $_SERVER['DOCUMENT_ROOT']));
 if (!defined('BASE_PATH') || !defined('BASE_SOURCE_PATH')) {
 	$a = str_replace(ROOT_PATH, "", dirname(__FILE__));
 	$a = str_replace('\/', DS, $a);
