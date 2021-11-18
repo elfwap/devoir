@@ -22,12 +22,14 @@ use Devoir\Exception\DevoirException;
 use Devoir\Exception\Client4XXException;
 use Devoir\Exception\Server5XXException;
 use Devoir\Exception\Redirect3XXException;
+use Devoir\Interfaces\RequestInterface;
+use \stdClass;
 
 /**
- *
+ * Front and main controller that every other controller inherits (extends).
  * @namespace Devoir
- * @author Muhammad Tahir Abdullahi
- * @copyright Copyright (c) Elftech Inc.
+ * @author Muhammad Tahir Abdullahi <muhammedtahirabdullahi@gmail.com>
+ * @copyright Copyright (c) Elftech Inc. <https://github.com/elfwap>
  * @package elfwap/devoir
  * @license https://opensource.org/licenses/mit-license.php MIT License
  *
@@ -35,25 +37,26 @@ use Devoir\Exception\Redirect3XXException;
 class Controller extends Devoir implements ControllerInterface, ControllerEventInterface, ResponseInterface
 {
 	/**
-	 *
+	 * Controller's name. (`Not the Front controller`).
 	 * @var string
 	 */
-	protected $controller = DEFAULT_CONTROLLER;
+	protected string $controller;
 	/**
-	 * 
-	 * @var string Fully-qualified controller's name
+	 * Fully-qualified controller's name (`With namespace`).
+	 * @var string 
 	 */
-	private string $fqController = CONTROLLERS_NAMESPACE . DEFAULT_CONTROLLER;
+	private string $fullyQualifiedController;
 	/**
-	 *
+	 * Action's name (`Default's index`).
 	 * @var string
 	 */
-	protected $action = DEFAULT_ACTION;
+	protected string $action;
 	/**
-	 *
+	 * Relative path to web public path 
+	 * (`or public path`) where the application is installed.
 	 * @var string
 	 */
-	protected $basePath = BASE_PATH;
+	protected $basePath;
 	/**
 	 *
 	 * @var array
@@ -85,7 +88,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	private string $path;
 	/**
-	 *
+	 * Response interface object.
 	 * @var object
 	 */
 	protected ResponseInterface $response;
@@ -108,7 +111,27 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * 
 	 * @var Devoir\Configuration $config store loaded configuration data for entire runtime.
 	 */
-	protected Configuration $config; 
+	protected Configuration $config;
+	/**
+	 * 
+	 * @var \stdClass $app
+	 */
+	private stdClass $app;
+	/**
+	 * 
+	 * @var \stdClass $appController
+	 */
+	private stdClass $appController;
+	/**
+	 * 
+	 * @var \stdClass $appModel
+	 */
+	private stdClass $appModel;
+	/**
+	 * 
+	 * @var \stdClass $appView
+	 */
+	private stdClass $appView;
 	/**
 	 *
 	 * @param mixed $controller
@@ -118,7 +141,18 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	final public function __construct($controller = null, $action = null, array $params = array(), $systemDir = null)
 	{
 		$this->config = new Configuration($systemDir);
-		$this->path = $_SERVER['HTTP_HOST'];
+		$this->app = $this->config->get('app');
+		$this->appController = $this->config->get('app', 'controller');
+		$this->appModel = $this->config->get('app', 'model');
+		$this->appView = $this->config->get('app', 'view');
+		$this->controller = $this->app->default_controller;
+		$this->fullyQualifiedController = $this->appController->namespace . $this->app->default_controller;
+		$this->action = $this->app->default_action;
+		$this->basePath = $this->app->base_path;
+		/*
+		repair this
+		$this->path = $this->getHost();
+		*/
 		if (is_string($controller) && !empty($controller)) {
 			$this->path .= '/' . $controller;
 			$this->setController($controller);
@@ -200,10 +234,10 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$this->registerListener(EVENT_CONTROLLER_AFTER_RUNUP, EVENT_CONTROLLER_AFTER_RUNUP);
 		$this->registerListener(EVENT_CONTROLLER_BEFORE_DISPATCH, EVENT_CONTROLLER_BEFORE_DISPATCH);
 		$this->registerListener(EVENT_CONTROLLER_AFTER_DISPATCH, EVENT_CONTROLLER_AFTER_DISPATCH);
-		if ($this->controller == $this->config->get('app', 'default_controller')) {
+		if ($this->controller == $this->app->default_controller) {
 			$this->parseURI();
 		}
-		if (class_exists($this->fqController)) {
+		if (class_exists($this->fullyQualifiedController)) {
 			$this->dispatchEvent(EVENT_ON_INITIALIZE);
 		}
 	}
@@ -236,18 +270,15 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	{
 		try {
 			$this->dispatchEvent(EVENT_CONTROLLER_BEFORE_RUNUP);
-			$events = $this->getImplementedListeners();
-			foreach ($events as $value) {
-				if($value == $this->action){
-					if(!$this->config->get('is_debug')) throw new NotFoundException([$this->path]);
-					throw new BadRequestException(['Method `' . $this->action . '` is an event listener method, only invoked when specific event occurs']);
-				}
+			if (in_array($this->action, (array) $this->getImplementedListeners())) {
+				if(!$this->config->get('is_debug')) throw new NotFoundException([$this->path]);
+				throw new BadRequestException(['Method `' . $this->action . '` is an event listener method, only invoked when specific event occurs. Avoid using any of the following methods: ' . implode(', ', (array) $this->getImplementedListeners())]);
 			}
-			$reflect = new ReflectionClass($this->fqController);
-			$reflectm = new ReflectionMethod($this->fqController . '::' . $this->action);
-			$x = $reflectm->invokeArgs($reflect->newInstanceWithoutConstructor(), $this->actionParams);
-			if ($x instanceof ResponseInterface) {
-				$this->response = $x;
+			$reflect = new ReflectionClass($this->fullyQualifiedController);
+			$reflectm = new ReflectionMethod($this->fullyQualifiedController . '::' . $this->action);
+			$runner = $reflectm->invokeArgs($reflect->newInstanceWithoutConstructor(), $this->actionParams);
+			if ($runner instanceof ResponseInterface) {
+				$this->response = $runner;
 				if ($this->response->isRedirect()) {
 					throw new Redirect3XXException([$this->response->getLocation(), $this->response->getStatusCode()]);
 				}
@@ -281,9 +312,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			$controllerName = substr($controllerName, 0, $pos);
 		}
 		$controllerName = ucfirst(strtolower($controllerName)) . "Controller";
-		$controllerName = $this->dashedToCamelCase($controllerName);
-		$filename = rtrim($this->config->get('app', 'controller.path'), DS) . DS . $controllerName . '.php';
-		$classname = $this->config->get('app', 'controller.namespace') . $controllerName;
+		$controllerName = $this->_dashedToCamelCase($controllerName);
+		$filename = rtrim($this->appController->path, DS) . DS . $controllerName . '.php';
+		$classname = $this->appController->namespace . $controllerName;
 		if (!file_exists($filename)) {
 			if ($this->config->get('is_debug')) {
 				throw new MissingControllerException([$controllerName, "File [" . $filename . "] not found"]);
@@ -294,7 +325,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			throw new MissingControllerException([$controllerName, "Class [" . $classname . "] not found"]);
 		} else {
 			$this->controller = $controllerName;
-			$this->fqController = $classname;
+			$this->fullyQualifiedController = $classname;
 		}
 		if (!isController($classname)) {
 			throw new MissingInheritanceException([$classname, self::class]);
@@ -308,15 +339,15 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	final public function setAction($actionName)
 	{
-		$actionName = $this->dashedToCamelCase($actionName);
-		if ($this->fqController == $this->config->get('app', 'controller.namespace') . $this->config->get('app', 'default_controller') && $this->config->get('app', 'default_controller')) {
+		$actionName = $this->_dashedToCamelCase($actionName);
+		if ($this->fullyQualifiedController == $this->config->get('app', 'controller.namespace') . $this->config->get('app', 'default_controller') && $this->config->get('app', 'default_controller')) {
 			if ($this->config->get('is_debug')) {
 				throw new MissingControllerException([$this->controller, "URI not resolved"]);
 			}
 			throw new BadRequestException(["URI not resolved"]);
 		}
-		if (class_exists($this->fqController)) {
-			$reflect = new ReflectionClass($this->fqController);
+		if (class_exists($this->fullyQualifiedController)) {
+			$reflect = new ReflectionClass($this->fullyQualifiedController);
 			if (!$reflect->hasMethod($actionName)) {
 				if ($this->config->get('is_debug')) {
 					throw new MissingActionException([$actionName, $this->controller, "Method not defined"]);
@@ -326,7 +357,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			$this->action = $actionName;
 		} else {
 			if ($this->config->get('is_debug')) {
-				throw new MissingControllerException([$this->controller, "Class [" . $this->fqController . "] not found"]);
+				throw new MissingControllerException([$this->controller, "Class [" . $this->fullyQualifiedController . "] not found"]);
 			}
 			throw new NotFoundException([$this->path]);
 		}
@@ -341,7 +372,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	{
 		$prms = array();
 		foreach ($params as $key => $value) {
-			$prms[$key] = $this->dashedToCamelCase($value);
+			$prms[$key] = $this->_dashedToCamelCase($value);
 		}
 		$this->actionParams = $prms;
 		return $this;
@@ -473,18 +504,18 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		foreach ($listeners as $listener) {
 			if (is_string($listener['callback']) && isNull($listener['object'])) {
 				if (!in_array($listener['callback'], (array) $this->getImplementedListeners())) {
-					$exceptions[] = [$event, $listener['callback'], $this->fqController, "Callback not Implemented"];
+					$exceptions[] = [$event, $listener['callback'], $this->fullyQualifiedController, "Callback not Implemented"];
 				}
-				if (class_exists($this->fqController)) {
-					$reflect = new ReflectionClass($this->fqController);
+				if (class_exists($this->fullyQualifiedController)) {
+					$reflect = new ReflectionClass($this->fullyQualifiedController);
 					if (!$reflect->hasMethod($listener['callback'])) {
-						$exceptions[] = [$event, $listener['callback'], $this->fqController, "Callback function not found"];
+						$exceptions[] = [$event, $listener['callback'], $this->fullyQualifiedController, "Callback function not found"];
 					} else {
-						$reflectm = new ReflectionMethod($this->fqController . '::' . $listener['callback']);
+						$reflectm = new ReflectionMethod($this->fullyQualifiedController . '::' . $listener['callback']);
 						$reflectm->invokeArgs($reflect->newInstanceWithoutConstructor(), [$this]);
 					}
 				} else {
-					$exceptions[] = [$event, $listener['callback'], $this->fqController, "Class not found"];
+					$exceptions[] = [$event, $listener['callback'], $this->fullyQualifiedController, "Class not found"];
 				}
 			} elseif (is_callable($listener['callback']) && isNull($listener['object'])) {
 				$reflect = new ReflectionFunction($listener['callback']);
@@ -764,7 +795,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	{
 		return $this;
 	}
-	private function dashedToCamelCase(?string $value)
+	private function _dashedToCamelCase(?string $value)
 	{
 		$comp = "";
 		$varr = explode('-', $value);
