@@ -118,7 +118,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	private stdClass $app;
 	/**
-	 * 
+	 * Holds configuration details about `controller`
 	 * @var \stdClass $appController
 	 */
 	private stdClass $appController;
@@ -132,6 +132,11 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * @var \stdClass $appView
 	 */
 	private stdClass $appView;
+	/**
+	 * 
+	 * @var BasicRequest $basic_request;
+	 */
+	private BasicRequest $basic_request;
 	/**
 	 *
 	 * @param mixed $controller
@@ -149,10 +154,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$this->fullyQualifiedController = $this->appController->namespace . $this->app->default_controller;
 		$this->action = $this->app->default_action;
 		$this->basePath = $this->app->base_path;
-		/*
-		repair this
-		$this->path = $this->getHost();
-		*/
+		$this->path = $this->basic_request->getHost();
 		if (is_string($controller) && !empty($controller)) {
 			$this->path .= '/' . $controller;
 			$this->setController($controller);
@@ -394,10 +396,10 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	{
 		$path = "";
 		if ($this->urlType == URL_TYPE_SLASH) {
-			$path = trim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), "/");
+			$path = trim(parse_url($this->basic_request->getServer('REQUEST_URI'), PHP_URL_PATH), "/");
 		}
 		if ($this->urlType == URL_TYPE_QUERY) {
-			$path = trim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_QUERY), "/");
+			$path = trim(parse_url($this->basic_request->getServer('REQUEST_URI'), PHP_URL_QUERY), "/");
 			if (strpos($path, 'devoir=') === 0 || strpos($path, '&devoir=') > 0) {
 				if (strpos($path, '&devoir=') > 0) {
 					$path = substr($path, strpos($path, '&devoir=') + 1);
@@ -412,7 +414,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		if (strpos($path, $this->basePath . '/') === 0) {
 			$path = substr($path, strlen($this->basePath . '/'));
 		}
-		$this->path .= $_SERVER["REQUEST_URI"];
+		$this->path .= $this->basic_request->getServer('REQUEST_URI');
 		@list($controller, $action, $params) = explode('/', $path, 3);
 		if (isset($controller)) {
 			$this->setController($controller);
@@ -447,7 +449,6 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		array_pop($ancest);
 		return $ancest;
 	}
-
 	/**
 	 *
 	 * {@inheritDoc}
