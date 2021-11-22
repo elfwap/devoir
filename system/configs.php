@@ -35,6 +35,11 @@ return [
 			'username' => '',
 			'userpass' => '',
 			'database' => '',
-		]
+		],
+		'test' => [
+			'username' => '',
+			'userpass' => '',
+			'database' => '',
+		],
 	],
 ];
