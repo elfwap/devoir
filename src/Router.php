@@ -1,8 +1,6 @@
 <?php
 namespace Devoir;
 
-use Devoir\Interfaces\RequestInterface;
-
 /**
  * Router class. Used when creating an abstract routing to an existing controller without visiting it
  * @namespace Devoir
@@ -12,17 +10,41 @@ use Devoir\Interfaces\RequestInterface;
  * @license https://opensource.org/licenses/mit-license.php MIT License
  *
  */
-class Router implements RequestInterface
+class Router extends Devoir
 {
+	/**
+	 * 
+	 * @var array $route holds loaded routes from `routes.php`
+	 */
 	private array $route;
+	/**
+	 * 
+	 * @var string $controller holds controller name to be routed to.
+	 */
 	private string $controller;
+	/**
+	 * 
+	 * @var string $action holds action name to be routed to.
+	 */
 	private string $action;
+	/**
+	 * 
+	 * @var array $params holds parameters to be routed to.
+	 */
 	private array $params;
-	public function __construct(string $systemDir = null)
+	/**
+	 * 
+	 * @var Devoir\BasicRequest $bsr
+	*/
+	private BasicRequest $bsr;
+	/**
+	 * 
+	 * @param string|null $systemDir system directory where `routes.php` is contained in.
+	 */
+	public function __construct(?string $systemDir = null)
 	{
 		if(is_dir($systemDir)){
 			$routes = $systemDir . DIRECTORY_SEPARATOR . 'routes.php';
-			$route = array();
 			if(file_exists($routes)){
 				$routes = require($routes);
 				foreach ($routes as $key => $value) {
@@ -53,7 +75,6 @@ class Router implements RequestInterface
 		$controller_found = no;
 		$action_found = no;
 		$params_found = no;
-		$inc = 0;
 		$keys = array();
 		$ctrl = "";
 		$actn = "";
@@ -61,8 +82,8 @@ class Router implements RequestInterface
 		foreach ($this->route as $key => $value) {
 			$exp = explode(';', $key);
 			if(is_array($exp)) $exp = array_filter($exp);
-			$pth = $this->getPath();
-			$qry = $this->getQuery('devoir');
+			$pth = $this->bsr->getPath();
+			$qry = $this->bsr->getQuery('devoir');
 			$pthexp = explode('/', trim($pth, '/'), 3);
 			$qryexp = [];
 			if($qry <> false) $qryexp = explode('/', trim($qry, '/'), 3);
@@ -263,161 +284,24 @@ class Router implements RequestInterface
 		];
 	}
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isGet()
+	 * @see \Devoir\Devoir::Ancestors()
 	 */
-	public function isGet(RequestInterface $request): bool
+	protected function Ancestors(): array
 	{
-		return YES;
+		$parent = parent::Ancestors();
+		array_push($parent, self::class);
+		return $parent;
 	}
 	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isPost()
+	 * returns list of super classes that {$this} class extends
+	 * @return array
 	 */
-	public function  isPost(RequestInterface $request): bool
+	public function getAncestors(): array
 	{
-		return YES;
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isPatch()
-	 */
-	public function  isPatch(RequestInterface $request): bool
-	{
-		return YES;
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isDelete()
-	 */
-	public function  isDelete(RequestInterface $request): bool
-	{
-		return YES;
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isPut()
-	 */
-	public function  isPut(RequestInterface $request): bool
-	{
-		return YES;
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isJSON()
-	 */
-	public function isJSON(RequestInterface $request): bool
-	{
-		return YES;
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::is()
-	 */
-	public function is(?string $type, RequestInterface $request): bool
-	{
-		return YES;
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::setData()
-	 */
-	public function setData(?string $data, $value)
-	{
-		return $this;
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getData()
-	 */
-	public function getData(string $data = null)
-	{
-		return null;
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getHost()
-	 */
-	public function getHost(): string
-	{
-		return "";
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getPort()
-	 */
-	public function getPort(): int
-	{
-		return 0;
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getScheme()
-	 */
-	public function getScheme(): string
-	{
-		return "";
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getPath()
-	 */
-	public function getPath(): string
-	{
-		$srv = $this->getServer('REQUEST_URI');
-		$srv = explode('/', $srv, 2)[1];
-		$srv = explode('?', $srv, 2)[0];
-		$srv = '/' . $srv;
-		return $srv;
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isPut()
-	 */
-	public function getQuery(?string $data = null)
-	{
-		$srv = $this->getServer('REQUEST_URI');
-		$qarr = array();
-		if(count($exp = explode('?', $srv)) === 2){
-			$srv = $exp[1];
-			if(count($exp = explode('&', $srv)) >= 1){
-				foreach ($exp as $value) {
-					$exp1 = explode('=', $value);
-					$qarr[$exp1[0]] = $exp1[1];
-				}
-			}
-		}
-		if(!isNull($data)){
-			if(array_key_exists($data, $qarr)) return $qarr[$data];
-			else return false;
-		}
-		return $qarr;
-	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getServer()
-	 */
-	public function getServer(?string $index = null)
-	{
-		if(!isNull($index)){
-			if(array_key_exists($index, $_SERVER)) return $_SERVER[$index];
-			else return false;
-		}
-		return $_SERVER;
+		$ancest = $this->Ancestors();
+		array_pop($ancest);
+		return $ancest;
 	}
 }
