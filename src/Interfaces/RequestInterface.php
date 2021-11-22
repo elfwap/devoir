@@ -82,16 +82,19 @@ interface RequestInterface
 	 */
 	public function getScheme(): string;
 	/**
-	 * 
+	 * Returns path in the requested address
 	 * @return string
 	 */
 	public function getPath(): string;
 	/**
+	 * Returns query as a singular string or array
 	 * @param string|null $data
 	 * @return string|array
 	 */
 	public function getQuery(?string $data = null);
 	/**
+	 * Returns a single entry from the `$_SERVER` variable if parameter is specified
+	 * or the whole `$_SERVER` variable as array.
 	 * @param string|null $index
 	 * @return mixed|array
 	 */
