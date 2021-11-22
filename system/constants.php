@@ -251,13 +251,3 @@ define('REG_EXP_PICKUP_PATH', '(\{(\d{1,2})\})');
 define('REG_EXP_PICKUP_PATH_II', '(\{(\d{1,2})\}(\{(\d{1,2})\}(\{(\d{1,2})\})?)?)');
 define('REG_EXP_PICKUP_PAIR', '(\$(\d{1,2}))');
 define('REG_EXP_PICKUP_PAIR_II', '(\$(\d{1,2})(\$(\d{1,2}))?(\$(\d{1,2}))?)');
-/* define('REG_EXP_ROUTE_ONE', '((path:=(\/((\w)+|(\{[0-9]{1,2}\}))*)+;)?query:=((\w)+:(\/((\w)+|(\{[0-9]{1,2}\}))*)+(~)?);)');
-define('REG_EXP_PATH_THREE', '((path:=(\/((\w)+|(\{[0-9]{1,2}\}))*)+;)?)');
-define('REG_EXP_ROUTE_TWO', '');
-#FOR PATH
-define('REG_EXP_FOR_EVERY_CONTROLLER', '(path:=\/\~\/)');
-define('REG_EXP_FOR_CONTROLLER_PATH', '(path:=\/\{((\d){1,2})\}/)');
-define('REG_EXP_FOR_SPECIFIC_CONTROLLER', '(path:=/%s/)');
-define('REG_EXP_FOR_ROOT_PATH', '(path:=/\%;)');
-define('REG_EXP_FOR_ACTION_PATH', '(path:=\/(\w+|\{((\d){1,2})\}|\~)/\{((\d){1,3})\}/)');
-define('REG_EXP_FOR_PARAMS_PATH', '(path:=\/(\w+|\{((\d){1,2})\}|\~)/\{((\d){1,2}|(\w)+|~)\}((\/)+\{(\d){1,2}\})*)'); */
