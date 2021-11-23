@@ -4,7 +4,7 @@ namespace Devoir\Exception;
 use \Throwable;
 
 /**
- *
+ * Bad Request Exception, thrown when client sends a `bad` request.
  * @namespace Devoir\Exception
  * @author Muhammad Tahir Abdullahi
  * @copyright Copyright (c) Elftech Inc.
@@ -36,4 +36,3 @@ class BadRequestException extends DevoirException
 		parent::__construct($message, $code, $previous);
 	}
 }
-
