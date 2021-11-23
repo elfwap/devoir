@@ -5,7 +5,9 @@ use Devoir\Controller;
 
 if(!function_exists("isController")){
 	/**
-	 * Checks whether the value of argument passed `is a` Devoir\Controller. 
+	 * Checks whether the value of argument passed `is a` Devoir\Controller.
+	 * @param mixed|object $component
+	 * @return bool
 	 */
     function isController($component): bool
 	{
@@ -26,6 +28,11 @@ if(!function_exists("isView")){
 	}
 } */
 if(!function_exists("isDevoir")){
+	/**
+	 * Checks if a component inherits from `Devoir` class.
+	 * @param string|object $component
+	 * @return bool
+	 */
 	function isDevoir($component) {
 		return is_a($component, Devoir::class, true);
 	}
@@ -33,7 +40,7 @@ if(!function_exists("isDevoir")){
 /**
  * Checks whether the passed argument value is null
  * @param mixed $value the value to passed as argument.
- * @return bool true|false
+ * @return bool
  */
 function isNull(mixed $value): bool{
 	return ($value === null);
