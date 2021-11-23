@@ -22,7 +22,7 @@ use Devoir\Exception\DevoirException;
 use Devoir\Exception\Client4XXException;
 use Devoir\Exception\Server5XXException;
 use Devoir\Exception\Redirect3XXException;
-use Devoir\Interfaces\RequestInterface;
+use Devoir\BasicResponse;
 use \stdClass;
 
 /**
@@ -34,7 +34,7 @@ use \stdClass;
  * @license https://opensource.org/licenses/mit-license.php MIT License
  *
  */
-class Controller extends Devoir implements ControllerInterface, ControllerEventInterface, ResponseInterface
+class Controller extends Devoir implements ControllerInterface, ControllerEventInterface
 {
 	/**
 	 * Controller's name. (`Not the Front controller`).
@@ -88,10 +88,10 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	private string $path;
 	/**
-	 * Response interface object.
-	 * @var object
+	 * 
+	 * @var BasicResponse $basic_response
 	 */
-	protected ResponseInterface $response;
+	protected BasicResponse $basic_response;
 	/**
 	 *
 	 * @var integer
@@ -134,7 +134,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	private stdClass $appView;
 	/**
 	 * 
-	 * @var BasicRequest $basic_request;
+	 * @var BasicRequest $basic_request
 	 */
 	private BasicRequest $basic_request;
 	/**
@@ -280,15 +280,14 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			$reflectm = new ReflectionMethod($this->fullyQualifiedController . '::' . $this->action);
 			$runner = $reflectm->invokeArgs($reflect->newInstanceWithoutConstructor(), $this->actionParams);
 			if ($runner instanceof ResponseInterface) {
-				$this->response = $runner;
-				if ($this->response->isRedirect()) {
-					throw new Redirect3XXException([$this->response->getLocation(), $this->response->getStatusCode()]);
+				if ($this->basic_response->isRedirect()) {
+					throw new Redirect3XXException([$this->basic_response->getLocation(), $this->basic_response->getStatusCode()]);
 				}
-				if ($this->response->isClientError()) {
-					throw new Client4XXException([$this->response->getMessage(), $this->response->getStatusCode()]);
+				if ($this->basic_response->isClientError()) {
+					throw new Client4XXException([$this->basic_response->getMessage(), $this->basic_response->getStatusCode()]);
 				}
-				if ($this->response->isServerError()) {
-					throw new Server5XXException([$this->response->getMessage(), $this->response->getStatusCode()]);
+				if ($this->basic_response->isServerError()) {
+					throw new Server5XXException([$this->basic_response->getMessage(), $this->basic_response->getStatusCode()]);
 				}
 			}
 			//TODO - dispatch request to model
@@ -571,7 +570,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\DevoirEventInterface::getImplementedListeners()
+	 * @see Devoir\Interfaces\DevoirEventInterface::getImplementedListeners()
 	 */
 	public function getImplementedListeners(): iterable
 	{
@@ -589,7 +588,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ControllerEventInterface::afterRunUp()
+	 * @see Devoir\Interfaces\ControllerEventInterface::afterRunUp()
 	 */
 	public function afterRunUp(ControllerEventInterface $event)
 	{
@@ -597,7 +596,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ControllerEventInterface::afterDispatch()
+	 * @see Devoir\Interfaces\ControllerEventInterface::afterDispatch()
 	 */
 	public function afterDispatch(ControllerEventInterface $event)
 	{
@@ -605,7 +604,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ControllerEventInterface::beforeDispatch()
+	 * @see Devoir\Interfaces\ControllerEventInterface::beforeDispatch()
 	 */
 	public function beforeDispatch(ControllerEventInterface $event)
 	{
@@ -613,7 +612,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ControllerEventInterface::beforeManifest()
+	 * @see Devoir\Interfaces\ControllerEventInterface::beforeManifest()
 	 */
 	public function beforeManifest(ControllerEventInterface $event)
 	{
@@ -621,13 +620,13 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ControllerEventInterface::afterManifest()
+	 * @see Devoir\Interfaces\ControllerEventInterface::afterManifest()
 	 */
 	public function afterManifest(ControllerEventInterface $event)
 	{
 	}
 	/**
-	 *
+	 * Terminates the current Controller running.
 	 */
 	final protected function terminate(): void
 	{
@@ -635,168 +634,11 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$this->stoppedPropagation = true;
 	}
 	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::redirectToLocation()
+	 * Converts `dashed-value` to `camelCase`.
+	 * @param mixed|null $value
+	 * @return mixed
 	 */
-	public function redirectToLocation(?string $location, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface
-	{
-		preg_match("(((ht|f)(tp)?s?://)?((\w)+\.)?(\w)+\.(\w){2,15}(\.(\w){2})?)", $location, $xd);
-		if(count($xd) > 0) $this->setLocation($location);
-		else $this->setLocation(strtolower(str_replace('//', '/', '/' . $location)));
-		$this->setStatusCode($statusCode);
-		return $this;
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::getLocation()
-	 */
-	public function getLocation(): string
-	{
-		return $this->response_location;
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::setStatusCode()
-	 */
-	public function setStatusCode(?int $code): ResponseInterface
-	{
-		$this->response_status_code = $code;
-		return $this;
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::getResponse()
-	 */
-	public function getResponse(): iterable
-	{
-		return [
-			"location" => $this->getLocation(),
-			"code" => $this->getStatusCode(),
-			"message" => $this->getMessage(),
-			0 => $this->getLocation(),
-			1 => $this->getStatusCode(),
-			2 => $this->getMessage()
-		];
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::redirectToController()
-	 */
-	public function redirectToController(?array $uriArray, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface
-	{
-		if(empty($uriArray)){
-			throw new BadRequestException($this->config->get('is_debug') ? ["Redirecting to empty controller"] : null);
-		}
-		$this->setStatusCode($statusCode);
-		$ctrl = "";
-		$actn = "";
-		$prms = "";
-		$cnt = 1;
-		foreach ($uriArray as $value) {
-			if(array_key_exists('controller', $uriArray)) $ctrl = $uriArray['controller'];
-			elseif(array_key_exists('Controller', $uriArray)) $ctrl = $uriArray['Controller'];
-			elseif($cnt === 1) $ctrl = $value;
-
-			if(array_key_exists('action', $uriArray)) $actn = $uriArray['action'];
-			elseif(array_key_exists('Action', $uriArray)) $actn = $uriArray['Action'];
-			elseif($cnt === 2) $actn = $value;
-
-			if(array_key_exists('params', $uriArray)) $prms = $uriArray['params'];
-			elseif(array_key_exists('Params', $uriArray)) $prms = $uriArray['Params'];
-			elseif(array_key_exists('param', $uriArray)) $prms = $uriArray['param'];
-			elseif(array_key_exists('Param', $uriArray)) $prms = $uriArray['Param'];
-			elseif($cnt === 3) $prms = $value;
-
-			$cnt += 1;
-		}
-		if(is_array($prms) && !empty($prms)){
-			$prms = implode('/', $prms);
-		}
-		$ctrl = strtolower($ctrl);
-		$actn = strtolower($actn);
-		$this->setLocation('/' . implode('/', [$ctrl, $actn, $prms]));
-		return $this;
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::getStatusCode()
-	 */
-	public function getStatusCode(): int
-	{
-		return $this->response_status_code;
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::redirectToAction()
-	 */
-	public function redirectToAction(?string $action, array $params = []): ResponseInterface
-	{
-		$this->setStatusCode(RESPONSE_CODE_MOVED_TEMPORARILY);
-		$prms = (!empty($params)) ? implode('/', $params) : "";
-		
-		$ctrl = strtolower(str_replace('Controller', '', explode(DS, static::class)[count(explode(DS, static::class)) - 1]));
-		$loc = [$ctrl, $action, $prms];
-		$this->setLocation(strtolower(str_replace('//', '/', '/' . implode('/', $loc))));
-		return $this;
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::getURI()
-	 */
-	public function getURI(): iterable
-	{
-		return [];
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::isRedirect()
-	 */
-	public function isRedirect(): bool
-	{
-		return ($this->getStatusCode() > 299 && $this->getStatusCode() < 400) ? Yes : No;
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::isServerError()
-	 */
-	public function isServerError(): bool
-	{
-		return ($this->getStatusCode() > 499 && $this->getStatusCode() < 600) ? Yes : No;
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::isClientError()
-	 */
-	public function isClientError(): bool
-	{
-		return ($this->getStatusCode() > 399 && $this->getStatusCode() < 500) ? Yes : No;
-	}
-	public function setLocation(?string $location): ResponseInterface
-	{
-		$this->response_location = $location;
-		return $this;
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::setURI()
-	 */
-	public function setURI(?iterable $uri): ResponseInterface
-	{
-		return $this;
-	}
-	private function _dashedToCamelCase(?string $value)
+	private function _dashedToCamelCase($value)
 	{
 		$comp = "";
 		$varr = explode('-', $value);
@@ -809,38 +651,6 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			$comp .= ucfirst($vr);
 		}
 		return $comp;
-	}
-	public function returnServerError(?string $message, ?int $statusCode = RESPONSE_CODE_INTERNAL_SERVER_ERROR): ResponseInterface
-	{
-		$this->response_message = $message;
-		if (!($statusCode > 499) && !($statusCode < 600)) {
-			throw new \InvalidArgumentException('Argument 1 (second) contains invalid value, Argument must be an integer with value of range [500 - 599]. ' . $statusCode . ' supplied');
-		}
-		$this->response_status_code = $statusCode;
-		return $this;
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::returnClientError()
-	 */
-	public function returnClientError(?string $message, ?int $statusCode = RESPONSE_CODE_NOT_FOUND): ResponseInterface
-	{
-		$this->response_message = $message;
-		if (!($statusCode > 399) && !($statusCode < 500)) {
-			throw new \InvalidArgumentException('Argument 1 (second) contains invalid value, Argument must be an integer with value of range [400 - 499]. ' . $statusCode . ' supplied');
-		}
-		$this->response_status_code = $statusCode;
-		return $this;
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ResponseInterface::getMessage()
-	 */
-	public function getMessage(): string
-	{
-		return $this->response_message;
 	}
 	/**
 	 *
