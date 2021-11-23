@@ -63,12 +63,6 @@ interface ResponseInterface
 	 */
 	public function getLocation(): string;
 	/**
-	 * 
-	 * @param iterable $uri
-	 * @return ResponseInterface
-	 */
-	public function setURI(?iterable $uri): ResponseInterface;
-	/**
 	 * returns response message string
 	 * @return string
 	 */
