@@ -4,9 +4,9 @@ namespace Devoir\Exception;
 use \Throwable;
 
 /**
- *
+ * Missing Inheritance Exception, thrown when the current child controller did not extend to front controller.
  * @namespace Devoir\Exception
- * @author Muhammad Tahir Abdullahi
+ * @author Muhammad Tahir Abdullahi <muhammedtahirabdullahi@gmail.com>
  * @copyright Copyright (c) Elftech Inc.
  * @package elfwap/devoir
  * @license https://opensource.org/licenses/mit-license.php MIT License
@@ -30,4 +30,3 @@ class MissingInheritanceException extends DevoirException
 		parent::__construct($message, $code, $previous);
 	}
 }
-
