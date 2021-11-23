@@ -4,7 +4,7 @@ namespace Devoir\Exception;
 use \Throwable;
 
 /**
- *
+ * Event Listener Exception, thrown on the occurrence of an event error.
  * @namespace Devoir\Exception
  * @author Muhammad Tahir Abdullahi
  * @copyright Copyright (c) Elftech Inc.
@@ -45,4 +45,3 @@ class EventListenerException extends DevoirException
 		parent::__construct($message, $code, $previous);
 	}
 }
-
