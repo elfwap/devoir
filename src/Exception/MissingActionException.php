@@ -4,9 +4,9 @@ namespace Devoir\Exception;
 use \Throwable;
 
 /**
- *
+ * Missing Action Exception, throw when the specified action isn't found in the current controller.
  * @namespace Devoir\Exception
- * @author Muhammad Tahir Abdullahi
+ * @author Muhammad Tahir Abdullahi <muhammedtahirabdullahi@gmail.com>
  * @copyright Copyright (c) Elftech Inc.
  * @package elfwap/devoir
  * @license https://opensource.org/licenses/mit-license.php MIT License
@@ -37,4 +37,3 @@ class MissingActionException extends DevoirException
 		parent::__construct($message, $code, $previous);
 	}
 }
-
