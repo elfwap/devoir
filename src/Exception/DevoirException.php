@@ -5,9 +5,9 @@ use \Throwable;
 use \Exception;
 
 /**
- *
+ * Devoir root Exception class.
  * @namespace Devoir\Exception
- * @author Muhammad Tahir Abdullahi
+ * @author Muhammad Tahir Abdullahi <muhammedtahirabdullahi@gmail.com>
  * @copyright Copyright (c) Elftech Inc.
  * @package elfwap/devoir
  * @license https://opensource.org/licenses/mit-license.php MIT License
@@ -48,4 +48,3 @@ class DevoirException extends Exception
 		}
 	}	
 }
-
