@@ -5,9 +5,9 @@ namespace Devoir\Exception;
 use \Throwable;
 
 /**
- *
+ * Redirect 300-range Exception, thrown when there is a redirect.
  * @namespace Devoir\Exception
- * @author Muhammad Tahir Abdullahi
+ * @author Muhammad Tahir Abdullahi <muhammedtahirabdullahi@gmail.com>
  * @copyright Copyright (c) Elftech Inc.
  * @package elfwap/devoir
  * @license https://opensource.org/licenses/mit-license.php MIT License
