@@ -1,7 +1,7 @@
 <?php
 
 return [
-	'c:=%;' => [
+	'c:=%;a:=web;' => [
 		'controller' => 'articles',
 		'action' => 'index',
 		'params' => ''
