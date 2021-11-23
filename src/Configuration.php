@@ -5,7 +5,7 @@ use \ReflectionObject;
 use \stdClass;
 
 /**
- *
+ * Configuration class, provides interface for retrieving and manipulating configurations at runtime.
  * @namespace Devoir
  * @author Muhammad Tahir Abdullahi
  * @copyright Copyright (c) Elftech Inc.
@@ -16,18 +16,18 @@ use \stdClass;
 
  class Configuration
  {
-	 /**
-	  * @var array $config store configuration data as array
-	  */
-	 private array $config;
-	 /**
-	  * @var object $configs store configuration data as object
-	  */
-	 private object $configs;
+	/**
+	 * @var array $config store configuration data as array.
+	 */
+	private array $config;
+	/**
+	 * @var object $configs store configuration data as object.
+	 */
+	private object $configs;
 
-	 /**
-	  * @param string|null $systemDir Framework's system directory where some meta files resides.
-	  */
+	/**
+	 * @param string|null $systemDir Framework's system directory where some meta files resides.
+	 */
 	public function __construct(string $systemDir = null)
 	{
 		$this->configs = new stdClass();
