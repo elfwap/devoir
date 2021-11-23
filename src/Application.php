@@ -2,7 +2,7 @@
 namespace Devoir;
 
 /**
- *
+ * Application class, application's entry point.
  * @namespace Devoir
  * @author Muhammad Tahir Abdullahi
  * @copyright Copyright (c) Elftech Inc.
@@ -12,8 +12,11 @@ namespace Devoir;
  */
 class Application
 {
-	
-	public function __construct($systemDir = null)
+	/**
+	 * 
+	 * @param string|null $systemDir
+	 */
+	public function __construct(?string $systemDir = null)
 	{
 		if(is_dir($systemDir)){
 			$constants = $systemDir . DIRECTORY_SEPARATOR . 'constants.php';
