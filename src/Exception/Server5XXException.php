@@ -5,9 +5,9 @@ namespace Devoir\Exception;
 use \Throwable;
 
 /**
- *
+ * Server 500-range Exception, thrown on the occurrence of server-based error.
  * @namespace Devoir\Exception
- * @author Muhammad Tahir Abdullahi
+ * @author Muhammad Tahir Abdullahi <muhammedtahirabdullahi@gmail.com>
  * @copyright Copyright (c) Elftech Inc.
  * @package elfwap/devoir
  * @license https://opensource.org/licenses/mit-license.php MIT License
