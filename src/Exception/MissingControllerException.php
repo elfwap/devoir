@@ -4,7 +4,7 @@ namespace Devoir\Exception;
 use \Throwable;
 
 /**
- *
+ * Missing Controller Exception, thrown when the specified controller is not found.
  * @namespace Devoir\Exception
  * @author Muhammad Tahir Abdullahi
  * @copyright Copyright (c) Elftech Inc.
@@ -34,4 +34,3 @@ class MissingControllerException extends DevoirException
 		parent::__construct($message, $code, $previous);
 	}
 }
-
