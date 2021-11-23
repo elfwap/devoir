@@ -2,7 +2,7 @@
 namespace Devoir;
 
 /**
- *
+ * Devoir class.
  * @namespace Devoir
  * @author Muhammad Tahir Abdullahi
  * @copyright Copyright (c) Elftech Inc.
@@ -12,14 +12,7 @@ namespace Devoir;
  */
 
 class Devoir
-{
-    /**
-     */
-    public function __construct()
-    {
-    }
-
-    
+{   
     /**
      * Returns array of ancestral classes
      * starting from the first super class to the immediate parent class
@@ -30,4 +23,3 @@ class Devoir
     	return [Devoir::class];
     }
 }
-
