@@ -3,12 +3,10 @@
 namespace Devoir;
 
 use Devoir\Interfaces\{ViewEventInterface, ControllerEventInterface, ControllerInterface, ViewInterface, DevoirEventInterface};
-use Devoir\Exception\{MissingViewClassException, MissingViewFrameException, MissingViewLayoutException, NotFoundException, MissingInheritanceException, EventListenerException};
+use Devoir\Exception\{MissingViewClassException, MissingViewFrameException, MissingViewLayoutException, NotFoundException, MissingInheritanceException};
 use \ReflectionClass;
 use \ReflectionFunction;
 use  \ReflectionMethod;
-use \Closure;
-
 class View extends Devoir implements ViewEventInterface, ViewInterface
 {
 	/**
@@ -46,7 +44,7 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 	private array $exported_vars = [];
 	/**
 	 * 
-	 * @var \Devoir\Configuration $config store loaded configuration data for current runtime.
+	 * @var Devoir\Configuration $config store loaded configuration data for current runtime.
 	 */
 	protected Configuration $config;
 	
@@ -54,18 +52,10 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 	{
 		$this->initialize();
 	}
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ViewInterface::setCallback()
-	 */
 	public function setCallback(ControllerInterface $controller_callback)
 	{
 		$this->controller = $controller_callback;
 	}
-	/**
-	 * 
-	 */
 	public function initialize()
 	{
 		$this->registerListener(EVENT_ON_INITIALIZE, EVENT_ON_INITIALIZE);
@@ -105,46 +95,46 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 		return $this->exported_vars;
 	}
 	/**
+	 * {@inheritdoc}
+	 * @see \Devoir\Intefaces\ViewEventInterface::beforeRender()
 	 * 
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ViewEventInterface::beforeRender()
 	 */
  	public function beforeRender(ViewEventInterface $event)
  	{
  	}
  	/**
- 	 * 
- 	 * {@inheritDoc}
- 	 * @see \Devoir\Interfaces\ViewEventInterface::afterRender()
- 	 */
+	 * {@inheritdoc}
+	 * @see \Devoir\Intefaces\ViewEventInterface::afterRender()
+	 * 
+	 */
  	public function afterRender(ViewEventInterface $event)
  	{}
  	/**
- 	 * 
- 	 * {@inheritDoc}
- 	 * @see \Devoir\Interfaces\ViewEventInterface::beforeLayout()
- 	 */
+	 * {@inheritdoc}
+	 * @see \Devoir\Intefaces\ViewEventInterface::beforeLayout()
+	 * 
+	 */
  	public function beforeLayout(ViewEventInterface $event)
  	{}
  	/**
- 	 * 
- 	 * {@inheritDoc}
- 	 * @see \Devoir\Interfaces\ViewEventInterface::afterLayout()
- 	 */
+	 * {@inheritdoc}
+	 * @see \Devoir\Intefaces\ViewEventInterface::afterLayout()
+	 * 
+	 */
  	public function afterLayout(ViewEventInterface $event)
  	{}
  	/**
- 	 * 
- 	 * {@inheritDoc}
- 	 * @see \Devoir\Interfaces\ViewEventInterface::beforeFrame()
- 	 */
+	 * {@inheritdoc}
+	 * @see \Devoir\Intefaces\ViewEventInterface::beforeFrame()
+	 * 
+	 */
  	public function beforeFrame(ViewEventInterface $event)
  	{}
  	/**
- 	 * 
- 	 * {@inheritDoc}
- 	 * @see \Devoir\Interfaces\ViewEventInterface::afterFrame()
- 	 */
+	 * {@inheritdoc}
+	 * @see \Devoir\Intefaces\ViewEventInterface::afterFrame()
+	 * 
+	 */
  	public function afterFrame(ViewEventInterface $event)
  	{}
  	/**
@@ -306,7 +296,7 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 		}
 		$class_name = ucfirst(strtolower($class_name)) . "View";
 		$class_name = $this->_dashedToCamelCase($class_name);
-		$filename = rtrim(getConfig('app', 'view.path'), DS) . DS . 'Class' . DS . $class_name . '.php';
+		$filename = rtrim(getConfig('app', 'view.path'), DS) . DS . 'Classes' . DS . $class_name . '.php';
 		$classname = getConfig('app', 'view.namespace') . $class_name;
 		if (!file_exists($filename)) {
 			if (getConfig('is_debug')) {
@@ -350,7 +340,7 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 			if (getConfig('is_debug')) {
 				throw new MissingViewLayoutException([$layout_name, "File [" . $filename . "] not found"]);
 			}
-			throw new NotFoundException(['View layout file `' . $layout_name . '`']);
+			throw new NotFoundException(['View layout file `' . $class_name . '`']);
 		}
 		$this->viewLayout = $layout_name;
 		$this->viewLayoutFile = $filename;
@@ -381,7 +371,7 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 			if (getConfig('is_debug')) {
 				throw new MissingViewFrameException([$frame_name, "File [" . $filename . "] not found"]);
 			}
-			throw new NotFoundException(['View frame file `' . $frame_name . '`']);
+			throw new NotFoundException(['View frame file `' . $class_name . '`']);
 		}
 		$this->viewFrame = $name;
 		$this->viewFrameFile = $filename;
