@@ -36,7 +36,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::redirectToAction()
+	 * @see \Devoir\Interfaces\ResponseInterface::redirectToAction()
 	 */
 	public function redirectToAction(?string $action, array $params = []): ResponseInterface
 	{
@@ -52,7 +52,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::redirectToController()
+	 * @see \Devoir\Interfaces\ResponseInterface::redirectToController()
 	 */
 	public function redirectToController(?array $uriArray, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface
 	{
@@ -94,10 +94,11 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::redirectToLocation()
+	 * @see \Devoir\Interfaces\ResponseInterface::redirectToLocation()
 	 */
 	public function redirectToLocation(?string $location, ?int $statusCode = RESPONSE_CODE_MOVED_TEMPORARILY): ResponseInterface
 	{
+		$xd = [];
 		preg_match("(((ht|f)(tp)?s?://)?((\w)+\.)?(\w)+\.(\w){2,15}(\.(\w){2})?)", $location, $xd);
 		if (count($xd) > 0) $this->setLocation($location);
 		else {
@@ -112,7 +113,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::returnClientError()
+	 * @see \Devoir\Interfaces\ResponseInterface::returnClientError()
 	 */
 	public function returnClientError(?string $message, ?int $statusCode = RESPONSE_CODE_NOT_FOUND): ResponseInterface
 	{
@@ -126,7 +127,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::returnServerError()
+	 * @see \Devoir\Interfaces\ResponseInterface::returnServerError()
 	 */
 	public function returnServerError(?string $message, ?int $statusCode = RESPONSE_CODE_INTERNAL_SERVER_ERROR): ResponseInterface
 	{
@@ -140,7 +141,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::setStatusCode()
+	 * @see \Devoir\Interfaces\ResponseInterface::setStatusCode()
 	 */
 	public function setStatusCode(?int $code): ResponseInterface
 	{
@@ -150,7 +151,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::getStatusCode()
+	 * @see \Devoir\Interfaces\ResponseInterface::getStatusCode()
 	 */
 	public function getStatusCode(): int
 	{
@@ -159,7 +160,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::setLocation()
+	 * @see \Devoir\Interfaces\ResponseInterface::setLocation()
 	 */
 	public function setLocation(?string $location): ResponseInterface
 	{
@@ -169,7 +170,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::getLocation()
+	 * @see \Devoir\Interfaces\ResponseInterface::getLocation()
 	 */
 	public function getLocation(): string
 	{
@@ -178,7 +179,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::getURI()
+	 * @see \Devoir\Interfaces\ResponseInterface::getURI()
 	 */
 	public function getURI(): iterable
 	{
@@ -187,7 +188,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::getMessage()
+	 * @see \Devoir\Interfaces\ResponseInterface::getMessage()
 	 */
 	public function getMessage(): string
 	{
@@ -196,7 +197,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::getResponse()
+	 * @see \Devoir\Interfaces\ResponseInterface::getResponse()
 	 */
 	public function getResponse(): iterable
 	{
@@ -204,15 +205,15 @@ class BasicResponse implements ResponseInterface
 			"location" => $this->getLocation(),
 			"code" => $this->getStatusCode(),
 			"message" => $this->getMessage(),
-			0 => $this->getLocation(),
-			1 => $this->getStatusCode(),
-			2 => $this->getMessage()
+			$this->getLocation(),
+			$this->getStatusCode(),
+			$this->getMessage()
 		];
 	}
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::isClientError()
+	 * @see \Devoir\Interfaces\ResponseInterface::isClientError()
 	 */
 	public function isClientError(): bool
 	{
@@ -221,7 +222,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::isServerError()
+	 * @see \Devoir\Interfaces\ResponseInterface::isServerError()
 	 */
 	public function isServerError(): bool
 	{
@@ -230,7 +231,7 @@ class BasicResponse implements ResponseInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ResponseInterface::isRedirect()
+	 * @see \Devoir\Interfaces\ResponseInterface::isRedirect()
 	 */
 	public function isRedirect(): bool
 	{

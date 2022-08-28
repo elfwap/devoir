@@ -17,7 +17,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isGet()
+	 * @see \Devoir\Interfaces\RequestInterface::isGet()
 	 */
 	public function isGet(RequestInterface $request): bool
 	{
@@ -26,7 +26,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isPost()
+	 * @see \Devoir\Interfaces\RequestInterface::isPost()
 	 */
 	public function  isPost(RequestInterface $request): bool
 	{
@@ -35,7 +35,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isPatch()
+	 * @see \Devoir\Interfaces\RequestInterface::isPatch()
 	 */
 	public function isPatch(RequestInterface $request): bool
 	{
@@ -44,7 +44,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isDelete()
+	 * @see \Devoir\Interfaces\RequestInterface::isDelete()
 	 */
 	public function isDelete(RequestInterface $request): bool
 	{
@@ -53,7 +53,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isPut()
+	 * @see \Devoir\Interfaces\RequestInterface::isPut()
 	 */
 	public function isPut(RequestInterface $request): bool
 	{
@@ -62,7 +62,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::isJSON()
+	 * @see \Devoir\Interfaces\RequestInterface::isJSON()
 	 */
 	public function isJSON(RequestInterface $request): bool
 	{
@@ -71,7 +71,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterfaces::is()
+	 * @see \Devoir\Interfaces\RequestInterface::is()
 	 */
 	public function is(?string $type, RequestInterface $request): bool
 	{
@@ -80,7 +80,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::setData()
+	 * @see \Devoir\Interfaces\RequestInterface::setData()
 	 */
 	public function setData(?string $data, $value)
 	{
@@ -89,7 +89,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getData()
+	 * @see \Devoir\Interfaces\RequestInterface::getData()
 	 */
 	public function getData(?string $data = null)
 	{
@@ -98,7 +98,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getHost()
+	 * @see \Devoir\Interfaces\RequestInterface::getHost()
 	 */
 	public function getHost(): string
 	{
@@ -107,7 +107,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getPort()
+	 * @see \Devoir\Interfaces\RequestInterface::getPort()
 	 */
 	public function getPort(): int
 	{
@@ -116,7 +116,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getScheme()
+	 * @see \Devoir\Interfaces\RequestInterface::getScheme()
 	 */
 	public function getScheme(): string
 	{
@@ -125,7 +125,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getPath()
+	 * @see \Devoir\Interfaces\RequestInterface::getPath()
 	 */
 	public function getPath(): string
 	{
@@ -138,7 +138,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getQuery()
+	 * @see \Devoir\Interfaces\RequestInterface::getQuery()
 	 */
 	public function getQuery(?string $data = null)
 	{
@@ -162,7 +162,7 @@ class BasicRequest extends Devoir implements RequestInterface
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\RequestInterface::getServer()
+	 * @see \Devoir\Interfaces\RequestInterface::getServer()
 	 */
 	public function getServer(?string $index = null)
 	{

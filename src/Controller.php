@@ -22,7 +22,6 @@ use Devoir\Exception\DevoirException;
 use Devoir\Exception\Client4XXException;
 use Devoir\Exception\Server5XXException;
 use Devoir\Exception\Redirect3XXException;
-use Devoir\BasicResponse;
 use \stdClass;
 
 /**
@@ -108,8 +107,8 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 */
 	protected string $response_message = "";
 	/**
-	 * 
-	 * @var Devoir\Configuration $config store loaded configuration data for entire runtime.
+	 * Store loaded configuration data for entire runtime.
+	 * @var \Devoir\Configuration $config
 	 */
 	protected Configuration $config;
 	/**
@@ -570,7 +569,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\DevoirEventInterface::getImplementedListeners()
+	 * @see \Devoir\Interfaces\DevoirEventInterface::getImplementedListeners()
 	 */
 	public function getImplementedListeners(): iterable
 	{
@@ -588,7 +587,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ControllerEventInterface::afterRunUp()
+	 * @see \Devoir\Interfaces\ControllerEventInterface::afterRunUp()
 	 */
 	public function afterRunUp(ControllerEventInterface $event)
 	{
@@ -596,7 +595,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ControllerEventInterface::afterDispatch()
+	 * @see \Devoir\Interfaces\ControllerEventInterface::afterDispatch()
 	 */
 	public function afterDispatch(ControllerEventInterface $event)
 	{
@@ -604,7 +603,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ControllerEventInterface::beforeDispatch()
+	 * @see \Devoir\Interfaces\ControllerEventInterface::beforeDispatch()
 	 */
 	public function beforeDispatch(ControllerEventInterface $event)
 	{
@@ -612,7 +611,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ControllerEventInterface::beforeManifest()
+	 * @see \Devoir\Interfaces\ControllerEventInterface::beforeManifest()
 	 */
 	public function beforeManifest(ControllerEventInterface $event)
 	{
@@ -620,7 +619,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see Devoir\Interfaces\ControllerEventInterface::afterManifest()
+	 * @see \Devoir\Interfaces\ControllerEventInterface::afterManifest()
 	 */
 	public function afterManifest(ControllerEventInterface $event)
 	{

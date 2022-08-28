@@ -61,9 +61,10 @@ use \stdClass;
 	 * @param string $key
 	 * @param mixed|object $value
 	 * @param string|null $subkeys separated by `.` for lower elevation(s).
-	 * @return Devoir\Configuration
+	 * @return Configuration $this
 	 */
-	public function set(string $key, $value = null, string $subkeys = null){
+	public function set(string $key, $value = null, string $subkeys = null): Configuration
+	{
 		$jsonConfig = json_decode(json_encode($this->config));
 		$this->configs->{$key} = &$jsonConfig->{$key};
 		if(!isNull($subkeys) && !empty($subkeys)){
@@ -89,7 +90,8 @@ use \stdClass;
 	 * @param string|null $subkeys separated by `.` for lower elevation(s).
 	 * @return mixed|object
 	 */
-	public function get(string $key, string $subkeys = null){
+	public function get(string $key, string $subkeys = null)
+	{
 		$ro = new ReflectionObject($this->configs);
 		$rp = $ro->getProperties();
 		$ret = null;
@@ -124,7 +126,8 @@ use \stdClass;
 	 * @param int $type
 	 * @return array|object|string|false
 	 */
-	public function getAll(int $type){
+	public function getAll(int $type)
+	{
 		$ret = null;
 		if(count((new ReflectionObject($this->configs))->getProperties()) < 1){
 			$this->configs = json_decode(json_encode($this->config));

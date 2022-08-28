@@ -14,55 +14,55 @@ interface RequestInterface
 {
 	/**
 	 * Checks whether the request is `GET`.
-	 * @param Devoir\Interfaces\RequestInterface $request
+	 * @param \Devoir\Interfaces\RequestInterface $request
 	 * @return bool true|false
 	 */
 	public function isGet(RequestInterface $request): bool;
 	/**
 	 * Checks whether the request is `POST`.
-	 * @param Devoir\Interfaces\RequestInterface $request
+	 * @param \Devoir\Interfaces\RequestInterface $request
 	 * @return bool true|false
 	 */
 	public function  isPost(RequestInterface $request): bool;
 	/**
 	 * Checks whether the request is `PATCH`.
-	 * @param Devoir\Interfaces\RequestInterface $request
+	 * @param \Devoir\Interfaces\RequestInterface $request
 	 * @return bool true|false
 	 */
 	public function isPatch(RequestInterface $request): bool;
 	/**
 	 * Checks whether the request is `DELETE`.
-	 * @param Devoir\Interfaces\RequestInterface $request
+	 * @param \Devoir\Interfaces\RequestInterface $request
 	 * @return bool true|false
 	 */
 	public function isDelete(RequestInterface $request): bool;
 	/**
 	 * Checks whether the request is `PUT`.
-	 * @param Devoir\Interfaces\RequestInterface $request
+	 * @param \Devoir\Interfaces\RequestInterface $request
 	 * @return bool true|false
 	 */
 	public function isPut(RequestInterface $request): bool;
 	/**
 	 * Checks whether the request is `JSON`.
-	 * @param Devoir\Interfaces\RequestInterface $request
+	 * @param \Devoir\Interfaces\RequestInterface $request
 	 * @return bool true|false
 	 */
 	public function isJSON(RequestInterface $request): bool;
 	/**
 	 * Checks whether the request is `GET|PUT|POST` and so on.
 	 * @param string $type string value of type to check on.
-	 * @param Devoir\Interfaces\RequestInterface $request
+	 * @param \Devoir\Interfaces\RequestInterface $request
 	 * @return bool true|false
 	 */
 	public function is(?string $type, RequestInterface $request):bool;
 	/**
-	 * Set the query data to post request before dispatch.
+	 * Set the POST request data before dispatch.
 	 * @param string $data
 	 * @param mixed|array $value
 	 */
 	public function setData(?string $data, $value);
 	/**
-	 * Get a single query data from post request
+	 * Get a single POST request data
 	 * @param string|null $data
 	 */
 	public function getData(?string $data = null);

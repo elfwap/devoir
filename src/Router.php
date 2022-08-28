@@ -34,7 +34,7 @@ class Router extends Devoir
 	private array $params;
 	/**
 	 * 
-	 * @var Devoir\BasicRequest $bsr
+	 * @var \Devoir\BasicRequest $bsr
 	*/
 	private BasicRequest $bsr;
 	/**
