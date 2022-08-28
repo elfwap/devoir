@@ -3,17 +3,19 @@
 namespace Devoir;
 
 use Devoir\Interfaces\{ViewEventInterface, ControllerEventInterface, ControllerInterface, ViewInterface, DevoirEventInterface};
-use Devoir\Exception\{MissingViewClassException, MissingViewFrameException, MissingViewLayoutException, NotFoundException, MissingInheritanceException};
+use Devoir\Exception\{MissingViewClassException, MissingViewFrameException, MissingViewLayoutException, NotFoundException, MissingInheritanceException, EventListenerException};
 use \ReflectionClass;
 use \ReflectionFunction;
-use  \ReflectionMethod;
+use \ReflectionMethod;
+use \Closure;
+
 class View extends Devoir implements ViewEventInterface, ViewInterface
 {
 	/**
-	* 
-	* @var $controller Controller event callback
-	* 
-	*/
+	 *
+	 * @var $controller Controller event callback
+	 *
+	 */
 	protected ControllerInterface $controller;
 	/**
 	 *
@@ -26,25 +28,25 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 	 */
 	private array $stoppedPropagations = [];
 	/**
-	* 
-	* @var string $viewClass Holds the View Classname, where view events and so could be implemented in
-	* @var string $viewLayout Holds the name to the first part of the view to be rendered
-	* @var string $viewFrame Hold the name to the second part of the view to be rendered, will be rendered in view layout
-	* @var string $fullyQualifiedView Holds the path of the Fully qualified view class (namespaced).
-	* 
-	*/
+	 *
+	 * @var string $viewClass Holds the View Classname, where view events and so could be implemented in
+	 * @var string $viewLayout Holds the name to the first part of the view to be rendered
+	 * @var string $viewFrame Hold the name to the second part of the view to be rendered, will be rendered in view layout
+	 * @var string $fullyQualifiedView Holds the path of the Fully qualified view class (namespaced).
+	 *
+	 */
 	private ?string $viewClass, $viewLayout, $viewFrame, $fullyQualifiedView;
 	
 	private ?string $viewLayoutFile, $viewFrameFile;
 	/**
-	* 
-	* @var array $exported_vars
-	* 
-	*/
+	 *
+	 * @var array $exported_vars
+	 *
+	 */
 	private array $exported_vars = [];
 	/**
-	 * 
-	 * @var Devoir\Configuration $config store loaded configuration data for current runtime.
+	 *
+	 * @var \Devoir\Configuration $config store loaded configuration data for current runtime.
 	 */
 	protected Configuration $config;
 	
@@ -77,7 +79,7 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 		$this->registerListener(EVENT_VIEW_AFTER_RENDER, EVENT_VIEW_AFTER_RENDER, self::class);
 	}
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ViewInterface::exportVars()
 	 */
@@ -86,7 +88,7 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 		$this->exported_vars = array_merge($this->exported_vars, $var_array);
 	}
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ViewInterface::exportedVars()
 	 */
@@ -95,49 +97,49 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 		return $this->exported_vars;
 	}
 	/**
-	 * {@inheritdoc}
-	 * @see \Devoir\Intefaces\ViewEventInterface::beforeRender()
-	 * 
+	 *
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ViewEventInterface::beforeRender()
 	 */
- 	public function beforeRender(ViewEventInterface $event)
- 	{
- 	}
- 	/**
-	 * {@inheritdoc}
-	 * @see \Devoir\Intefaces\ViewEventInterface::afterRender()
-	 * 
+	public function beforeRender(ViewEventInterface $event)
+	{
+	}
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ViewEventInterface::afterRender()
 	 */
- 	public function afterRender(ViewEventInterface $event)
- 	{}
- 	/**
-	 * {@inheritdoc}
-	 * @see \Devoir\Intefaces\ViewEventInterface::beforeLayout()
-	 * 
+	public function afterRender(ViewEventInterface $event)
+	{}
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ViewEventInterface::beforeLayout()
 	 */
- 	public function beforeLayout(ViewEventInterface $event)
- 	{}
- 	/**
-	 * {@inheritdoc}
-	 * @see \Devoir\Intefaces\ViewEventInterface::afterLayout()
-	 * 
+	public function beforeLayout(ViewEventInterface $event)
+	{}
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ViewEventInterface::afterLayout()
 	 */
- 	public function afterLayout(ViewEventInterface $event)
- 	{}
- 	/**
-	 * {@inheritdoc}
-	 * @see \Devoir\Intefaces\ViewEventInterface::beforeFrame()
-	 * 
+	public function afterLayout(ViewEventInterface $event)
+	{}
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ViewEventInterface::beforeFrame()
 	 */
- 	public function beforeFrame(ViewEventInterface $event)
- 	{}
- 	/**
-	 * {@inheritdoc}
-	 * @see \Devoir\Intefaces\ViewEventInterface::afterFrame()
-	 * 
+	public function beforeFrame(ViewEventInterface $event)
+	{}
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ViewEventInterface::afterFrame()
 	 */
- 	public function afterFrame(ViewEventInterface $event)
- 	{}
- 	/**
+	public function afterFrame(ViewEventInterface $event)
+	{}
+	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\DevoirEventInterface::onInitialize()
@@ -167,10 +169,10 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 		return NO;
 	}
 	/**
-	* 
-	* {@inheritdoc}
-	* @see \Devoir\Interfaces\DevoirEventInterface::consumeEvent()
-	*/
+	 *
+	 * {@inheritdoc}
+	 * @see \Devoir\Interfaces\DevoirEventInterface::consumeEvent()
+	 */
 	final public function consumeEvent($event = null)
 	{
 		if (isNull($event)){
@@ -285,10 +287,10 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 		];
 	}
 	/**
-	* 
-	* {@inheritdoc}
-	* @see \Devoir\Interfaces\ViewInterface::setClass()
-	*/
+	 *
+	 * {@inheritdoc}
+	 * @see \Devoir\Interfaces\ViewInterface::setClass()
+	 */
 	public function setClass(string $class_name)
 	{
 		if ($pos = strpos($class_name, 'View')) {
@@ -316,19 +318,19 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 		return $this;
 	}
 	/**
-	* 
-	* {@inheritdoc}
-	* @see \Devoir\Interfaces\ViewInterface::getClass()
-	*/
+	 *
+	 * {@inheritdoc}
+	 * @see \Devoir\Interfaces\ViewInterface::getClass()
+	 */
 	public function getClass(): string
 	{
 		return $this->viewClass;
 	}
 	/**
-	* 
-	* {@inheritdoc}
-	* @see \Devoir\Interfaces\ViewInterface::setLayout()
-	*/
+	 *
+	 * {@inheritdoc}
+	 * @see \Devoir\Interfaces\ViewInterface::setLayout()
+	 */
 	public function setLayout(string $name)
 	{
 		if ($pos = strpos($name, '_layout')) {
@@ -340,28 +342,29 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 			if (getConfig('is_debug')) {
 				throw new MissingViewLayoutException([$layout_name, "File [" . $filename . "] not found"]);
 			}
-			throw new NotFoundException(['View layout file `' . $class_name . '`']);
+			throw new NotFoundException(['View layout file `' . $layout_name . '`']);
 		}
 		$this->viewLayout = $layout_name;
 		$this->viewLayoutFile = $filename;
 		return $this;
 	}
 	/**
-	* 
-	* {@inheritdoc}
-	* @see \Devoir\Interfaces\ViewInterface::getLayout()
-	*/
+	 *
+	 * {@inheritdoc}
+	 * @see \Devoir\Interfaces\ViewInterface::getLayout()
+	 */
 	public function getLayout(): string
 	{
 		return $this->viewLayout;
 	}
 	/**
-	* 
-	* {@inheritdoc}
-	* @see \Devoir\Interfaces\ViewInterface::setFrame()
-	*/
+	 *
+	 * {@inheritdoc}
+	 * @see \Devoir\Interfaces\ViewInterface::setFrame()
+	 */
 	public function setFrame(string $name)
 	{
+		$frame_name = "";
 		if ($pos = strpos($name, '_frame')) {
 			$frame_name = substr($name, 0, $pos);
 		}
@@ -371,17 +374,17 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 			if (getConfig('is_debug')) {
 				throw new MissingViewFrameException([$frame_name, "File [" . $filename . "] not found"]);
 			}
-			throw new NotFoundException(['View frame file `' . $class_name . '`']);
+			throw new NotFoundException(['View frame file `' . $frame_name . '`']);
 		}
 		$this->viewFrame = $name;
 		$this->viewFrameFile = $filename;
 		return $this;
 	}
 	/**
-	* 
-	* {@inheritdoc}
-	* @see \Devoir\Interfaces\ViewInterface::getFrame()
-	*/
+	 *
+	 * {@inheritdoc}
+	 * @see \Devoir\Interfaces\ViewInterface::getFrame()
+	 */
 	public function getFrame(): string
 	{
 		return $this->viewFrame;

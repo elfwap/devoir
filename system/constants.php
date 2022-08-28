@@ -33,7 +33,7 @@ if (!defined('MODELS_NAMESPACE')) {
 	define('MODELS_NAMESPACE', APPLICATION_NAMESPACE . 'Models\\');
 }
 if (!defined('VIEWS_NAMESPACE')) {
-	define('VIEWS_NAMESPACE', APPLICATION_NAMESPACE . 'Views\\');
+	define('VIEWS_NAMESPACE', APPLICATION_NAMESPACE . 'Views\\Classes\\');
 }
 if (!defined('IS_DEBUG')) {
 	define('IS_DEBUG', true);
@@ -44,12 +44,24 @@ if (!defined('DEFAULT_CONTROLLER')) {
 if (!defined('DEFAULT_ACTION')) {
 	define('DEFAULT_ACTION', 'index');
 }
+if (!defined('DEFAULT_VIEW_CLASS')) {
+	define('DEFAULT_VIEW_CLASS', 'AppView');
+}
+if (!defined('DEFAULT_VIEW_LAYOUT')) {
+	define('DEFAULT_VIEW_LAYOUT', 'app_layout');
+}
+if (!defined('DEFAULT_VIEW_FRAME')) {
+	define('DEFAULT_VIEW_FRAME', 'app_frame');
+}
 //EXCEPTION CODES
 define('DEVOIR_EXCEPTION_CODE', 1001);
 define('MISSING_CONTROLLER_EXCEPTION_CODE', 1002);
 define('MISSING_ACTION_EXCEPTION_CODE', 1003);
 define('EVENT_LISTENER_EXCEPTION_CODE', 1004);
 define('MISSING_INHERITANCE_EXCEPTION_CODE', 1005);
+define('MISSING_VIEW_CLASS_EXCEPTION_CODE', 1006);
+define('MISSING_VIEW_FRAME_EXCEPTION_CODE', 1007);
+define('MISSING_VIEW_LAYOUT_EXCEPTION_CODE', 1008);
 #FOR CLIENT REQUESTS
 define('BAD_REQUEST_EXCEPTION_CODE', 1400);
 define('UNAUTHORIZED_EXCEPTION_CODE', 1401);
@@ -133,6 +145,8 @@ if (!defined('MODELS_PATH')) {
 if (!defined('VIEWS_PATH')) {
 	define('VIEWS_PATH', (empty(BASE_SOURCE_PATH) ? BASE_SOURCE_PATH : (BASE_SOURCE_PATH . DS)) . "Views" . DS);
 }
+define('LIB_SYSTEM_PATH', dirname(__FILE__));
+define('LIB_SOURCE_PATH', dirname(dirname(__FILE__)) . DS . 'src');
 //URL CONFIG
 define('URL_TYPE_QUERY', 2000);
 define('URL_TYPE_SLASH', 2001);
@@ -246,6 +260,12 @@ define('EVENT_CONTROLLER_BEFORE_DISPATCH', 'beforeDispatch');
 define('EVENT_CONTROLLER_AFTER_DISPATCH', 'afterDispatch');
 define('EVENT_CONTROLLER_BEFORE_MANIFEST', 'beforeManifest');
 define('EVENT_CONTROLLER_AFTER_MANIFEST', 'afterManifest');
+define('EVENT_VIEW_BEFORE_RENDER', 'beforeRender');
+define('EVENT_VIEW_AFTER_RENDER', 'afterRender');
+define('EVENT_VIEW_BEFORE_LAYOUT', 'beforeLayout');
+define('EVENT_VIEW_AFTER_LAYOUT', 'afterLayout');
+define('EVENT_VIEW_BEFORE_FRAME', 'beforeFrame');
+define('EVENT_VIEW_AFTER_FRAME', 'afterFrame');
 //REGULAR EXPRESSION CONSTANTS
 define('REG_EXP_PICKUP_PATH', '(\{(\d{1,2})\})');
 define('REG_EXP_PICKUP_PATH_II', '(\{(\d{1,2})\}(\{(\d{1,2})\}(\{(\d{1,2})\})?)?)');
