@@ -2,7 +2,7 @@
 namespace Devoir\Interfaces;
 
 /**
- * ControllerEventInterface, Interfaces for controller's events.
+ * ControllerEventInterface, Interface for controller's events.
  * @namespace Devoir\Interfaces
  * @author Muhammad Tahir Abdullahi <muhammedtahirabdullahi@gmail.com>
  * @copyright Copyright (c) Elftech Inc.
@@ -14,22 +14,22 @@ interface ControllerEventInterface extends DevoirEventInterface
 {
 	/**
 	 * Invoked before the application runs, before calling the `run` function.
-	 * @param DevoirEventInterface $event
+	 * @param ControllerEventInterface $event
 	 */
 	public function beforeRunUp(ControllerEventInterface $event);
 	/**
 	 * Invoked after the application runs, after calling the run function successfully.
-	 * @param DevoirEventInterface $event
+	 * @param ControllerEventInterface $event
 	 */
 	public function afterRunUp(ControllerEventInterface $event);
 	/**
 	 * Invoked before data are being dispatched to the `Models`. 
-	 * @param DevoirEventInterface $event
+	 * @param ControllerEventInterface $event
 	 */
 	public function beforeDispatch(ControllerEventInterface $event);
 	/**
 	 * Invoked after data are being dispatched to the `Models` successfully.
-	 * @param DevoirEventInterface $event
+	 * @param ControllerEventInterface $event
 	 */
 	public function afterDispatch(ControllerEventInterface $event);
 	/**

@@ -8,27 +8,19 @@ use \ReflectionMethod;
 use \Closure;
 use \ArgumentCountError;
 use \TypeError;
-use Devoir\Exception\MissingControllerException;
-use Devoir\Exception\MissingActionException;
-use Devoir\Interfaces\ControllerInterface;
-use Devoir\Interfaces\ControllerEventInterface;
-use Devoir\Interfaces\DevoirEventInterface;
-use Devoir\Exception\EventListenerException;
-use Devoir\Exception\MissingInheritanceException;
+use Devoir\Exception\{MissingControllerException, MissingActionException, EventListenerException, MissingInheritanceException};
+use Devoir\Interfaces\{ControllerInterface, DevoirEventInterface, ControllerEventInterface, ResponseInterface};
 use Devoir\Exception\NotFoundException;
 use Devoir\Exception\BadRequestException;
-use Devoir\Interfaces\ResponseInterface;
 use Devoir\Exception\DevoirException;
-use Devoir\Exception\Client4XXException;
-use Devoir\Exception\Server5XXException;
-use Devoir\Exception\Redirect3XXException;
+use Devoir\Exception\{Client4XXException, Server5XXException, Redirect3XXException};
 use \stdClass;
 
 /**
  * Front and main controller that every other controller inherits (extends).
  * @namespace Devoir
  * @author Muhammad Tahir Abdullahi <muhammedtahirabdullahi@gmail.com>
- * @copyright Copyright (c) Elftech Inc. <https://github.com/elfwap>
+ * @copyright Copyright (c) [2021 - 2022] Elftech Inc. <https://github.com/elfwap/devoir>
  * @package elfwap/devoir
  * @license https://opensource.org/licenses/mit-license.php MIT License
  *
@@ -78,9 +70,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	protected array $_eventListeners = array();
 	/**
 	 *
-	 * @var boolean
+	 * @var array $stoppedPropagations
 	 */
-	private bool $stoppedPropagation = false;
+	private array $stoppedPropagations = [];
 	/**
 	 *
 	 * @var string
@@ -88,27 +80,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	private string $path;
 	/**
 	 * 
-	 * @var BasicResponse $basic_response
-	 */
-	protected BasicResponse $basic_response;
-	/**
-	 *
-	 * @var integer
-	 */
-	protected int $response_status_code = 0;
-	/**
-	 *
-	 * @var string
-	 */
-	protected string $response_location = "";
-	/**
-	 *
-	 * @var string
-	 */
-	protected string $response_message = "";
-	/**
-	 * Store loaded configuration data for entire runtime.
-	 * @var \Devoir\Configuration $config
+	 * @var \Devoir\Configuration $config store loaded configuration data for current runtime.
 	 */
 	protected Configuration $config;
 	/**
@@ -135,15 +107,45 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * 
 	 * @var BasicRequest $basic_request
 	 */
-	private BasicRequest $basic_request;
+	protected BasicRequest $basic_request;
+	/**
+	 * 
+	 * @var BasicResponse $basic_response
+	 */
+	protected BasicResponse $basic_response;
+	private $ctrl;
+	private $actn;
+	private $prms;
+	private $sysd;
+	/**
+	* 
+	* @var string $view_class
+	* @var string $view_layout
+	* @var string $view_frame
+	* 
+	*/
+	private ?string $view_class = null, $view_frame = null, $view_layout = null;
+	/**
+	* 
+	* @var View $view
+	* 
+	*/
+	private View $view;
 	/**
 	 *
-	 * @param mixed $controller
-	 * @param string $action
+	 * @param mixed|null $controller
+	 * @param mixed|null $action
 	 * @param array $params
+	 * @param mixed|null $systemDir
 	 */
 	final public function __construct($controller = null, $action = null, array $params = array(), $systemDir = null)
 	{
+		$this->ctrl = $controller;
+		$this->actn = $action;
+		$this->prms = $params;
+		$this->sysd = $systemDir;
+		$this->basic_response = new BasicResponse();
+		$this->basic_request = new BasicRequest();
 		$this->config = new Configuration($systemDir);
 		$this->app = $this->config->get('app');
 		$this->appController = $this->config->get('app', 'controller');
@@ -153,7 +155,8 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$this->fullyQualifiedController = $this->appController->namespace . $this->app->default_controller;
 		$this->action = $this->app->default_action;
 		$this->basePath = $this->app->base_path;
-		$this->path = $this->basic_request->getHost();
+		$this->path = $this->basic_request->getHost('host');
+		
 		if (is_string($controller) && !empty($controller)) {
 			$this->path .= '/' . $controller;
 			$this->setController($controller);
@@ -230,17 +233,34 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	final protected function initialize()
 	{
 		$this->registerListener(EVENT_ON_INITIALIZE, EVENT_ON_INITIALIZE);
+		$this->registerListener(EVENT_ON_INITIALIZE, EVENT_ON_INITIALIZE, self::class);
 		$this->registerListener(EVENT_ON_TERMINATE, EVENT_ON_TERMINATE);
+		$this->registerListener(EVENT_ON_TERMINATE, EVENT_ON_TERMINATE, self::class);
 		$this->registerListener(EVENT_CONTROLLER_BEFORE_RUNUP, EVENT_CONTROLLER_BEFORE_RUNUP);
+		$this->registerListener(EVENT_CONTROLLER_BEFORE_RUNUP, EVENT_CONTROLLER_BEFORE_RUNUP, self::class);
 		$this->registerListener(EVENT_CONTROLLER_AFTER_RUNUP, EVENT_CONTROLLER_AFTER_RUNUP);
+		$this->registerListener(EVENT_CONTROLLER_AFTER_RUNUP, EVENT_CONTROLLER_AFTER_RUNUP, self::class);
 		$this->registerListener(EVENT_CONTROLLER_BEFORE_DISPATCH, EVENT_CONTROLLER_BEFORE_DISPATCH);
+		$this->registerListener(EVENT_CONTROLLER_BEFORE_DISPATCH, EVENT_CONTROLLER_BEFORE_DISPATCH, self::class);
 		$this->registerListener(EVENT_CONTROLLER_AFTER_DISPATCH, EVENT_CONTROLLER_AFTER_DISPATCH);
+		$this->registerListener(EVENT_CONTROLLER_AFTER_DISPATCH, EVENT_CONTROLLER_AFTER_DISPATCH, self::class);
+		$this->registerListener(EVENT_CONTROLLER_BEFORE_MANIFEST, EVENT_CONTROLLER_BEFORE_MANIFEST);
+		$this->registerListener(EVENT_CONTROLLER_BEFORE_MANIFEST, EVENT_CONTROLLER_BEFORE_MANIFEST, self::class);
+		$this->registerListener(EVENT_CONTROLLER_AFTER_MANIFEST, EVENT_CONTROLLER_AFTER_MANIFEST);
+		$this->registerListener(EVENT_CONTROLLER_AFTER_MANIFEST, EVENT_CONTROLLER_AFTER_MANIFEST, self::class);
 		if ($this->controller == $this->app->default_controller) {
 			$this->parseURI();
 		}
 		if (class_exists($this->fullyQualifiedController)) {
-			$this->dispatchEvent(EVENT_ON_INITIALIZE);
+			foreach (debug_backtrace() as $dbb) {
+			if ($dbb['function'] == "run") {
+					$this->dispatchEvent(EVENT_ON_INITIALIZE);
+				}
+			}
 		}
+		$this->view_class = getConfig('app', 'default_view_class');
+		$this->view_frame = getConfig('app', 'default_view_frame');
+		$this->view_layout = getConfig('app', 'default_view_layout');
 	}
 
 	/**
@@ -248,9 +268,18 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerInterface::setViewVar()
 	 */
-	final public function setViewVar($var)
+	final public function setViewVar($var_name, $var_value = null): ControllerInterface
 	{
-		$this->viewVars[] = $var;
+		
+		if (is_array($var_name)) {
+			foreach ($var_name as $vk => $vn) {
+				$this->viewVars[$vk] = $vn;
+			}
+			//$this->view->exportVars($var_name);
+		}else {
+			$this->viewVars[$var_name] = $var_value;
+			//$this->view->exportVars($this->viewVars);
+		}
 		return $this;
 	}
 	/**
@@ -258,7 +287,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerInterface::getViewVars()
 	 */
-	final public function getViewVars()
+	final public function getViewVars(): iterable
 	{
 		return $this->viewVars;
 	}
@@ -267,7 +296,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerInterface::run()
 	 */
-	final public function run()
+	final public function run(): void
 	{
 		try {
 			$this->dispatchEvent(EVENT_CONTROLLER_BEFORE_RUNUP);
@@ -277,20 +306,26 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			}
 			$reflect = new ReflectionClass($this->fullyQualifiedController);
 			$reflectm = new ReflectionMethod($this->fullyQualifiedController . '::' . $this->action);
-			$runner = $reflectm->invokeArgs($reflect->newInstanceWithoutConstructor(), $this->actionParams);
+			$runner = $reflectm->invokeArgs($reflect->newInstanceArgs([$this->ctrl, $this->actn, $this->prms, $this->sysd]), $this->actionParams);
 			if ($runner instanceof ResponseInterface) {
-				if ($this->basic_response->isRedirect()) {
-					throw new Redirect3XXException([$this->basic_response->getLocation(), $this->basic_response->getStatusCode()]);
+				if ($runner->isRedirect()) {
+					throw new Redirect3XXException([$runner->getLocation(), $runner->getStatusCode()]);
 				}
-				if ($this->basic_response->isClientError()) {
-					throw new Client4XXException([$this->basic_response->getMessage(), $this->basic_response->getStatusCode()]);
+				if ($runner->isClientError()) {
+					throw new Client4XXException([$runner->getMessage(), $runner->getStatusCode()]);
 				}
-				if ($this->basic_response->isServerError()) {
-					throw new Server5XXException([$this->basic_response->getMessage(), $this->basic_response->getStatusCode()]);
+				if ($runner->isServerError()) {
+					throw new Server5XXException([$runner->getMessage(), $runner->getStatusCode()]);
 				}
 			}
 			//TODO - dispatch request to model
-			//TODO render view
+			if ($runner instanceof ControllerInterface) {
+				$this->view = new View($runner, $this->view_class, null, null);
+				$this->view->setLayout($this->view_layout);
+				$this->view->setFrame($this->view_frame);
+				$this->view->exportVars($runner->getViewVars());
+				$this->view->render();
+			}
 			$this->dispatchEvent(EVENT_CONTROLLER_AFTER_RUNUP);
 		} catch (ArgumentCountError $acerr) {
 			if(!$this->config->get('is_debug')) throw new BadRequestException();
@@ -306,7 +341,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerInterface::setController()
 	 */
-	final public function setController($controllerName)
+	final public function setController($controllerName): ControllerInterface
 	{
 		if ($pos = strpos($controllerName, 'Controller')) {
 			$controllerName = substr($controllerName, 0, $pos);
@@ -316,7 +351,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$filename = rtrim($this->appController->path, DS) . DS . $controllerName . '.php';
 		$classname = $this->appController->namespace . $controllerName;
 		if (!file_exists($filename)) {
-			if ($this->config->get('is_debug')) {
+			if (getConfig('is_debug')) {
 				throw new MissingControllerException([$controllerName, "File [" . $filename . "] not found"]);
 			}
 			throw new NotFoundException([$this->path]);
@@ -337,11 +372,11 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerInterface::setAction()
 	 */
-	final public function setAction($actionName)
+	final public function setAction($actionName): ControllerInterface
 	{
 		$actionName = $this->_dashedToCamelCase($actionName);
 		if ($this->fullyQualifiedController == $this->config->get('app', 'controller.namespace') . $this->config->get('app', 'default_controller') && $this->config->get('app', 'default_controller')) {
-			if ($this->config->get('is_debug')) {
+			if (getConfig('is_debug')) {
 				throw new MissingControllerException([$this->controller, "URI not resolved"]);
 			}
 			throw new BadRequestException(["URI not resolved"]);
@@ -349,7 +384,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		if (class_exists($this->fullyQualifiedController)) {
 			$reflect = new ReflectionClass($this->fullyQualifiedController);
 			if (!$reflect->hasMethod($actionName)) {
-				if ($this->config->get('is_debug')) {
+				if (getConfig('is_debug')) {
 					throw new MissingActionException([$actionName, $this->controller, "Method not defined"]);
 				}
 				throw new NotFoundException([$this->path]);
@@ -368,7 +403,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerInterface::setParams()
 	 */
-	final public function setParams(?array $params)
+	final public function setParams(?array $params): ControllerInterface
 	{
 		$prms = array();
 		foreach ($params as $key => $value) {
@@ -429,28 +464,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \Devoir\Devoir::Ancestors()
-	 */
-	protected function Ancestors(): array
-	{
-		$parent = parent::Ancestors();
-		array_push($parent, self::class);
-		return $parent;
-	}
-	/**
-	 * returns list of super classes that {$this} class extends
-	 * @return array
-	 */
-	public function getAncestors(): array
-	{
-		$ancest = $this->Ancestors();
-		array_pop($ancest);
-		return $ancest;
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ControllerEventInterface::onInitialize()
+	 * @see \Devoir\Interfaces\DevoirEventInterface::onInitialize()
 	 */
 	public function onInitialize(DevoirEventInterface $event)
 	{
@@ -468,9 +482,27 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\DevoirEventInterface::isPropagationStopped()
 	 */
-	final public function isPropagationStopped(): bool
+	final public function isPropagationStopped($event = null): bool
 	{
-		return $this->stoppedPropagation;
+		if (isNull($event)) {
+			if(array_key_exists('all', $this->stoppedPropagations)) return $this->stoppedPropagations['all'];
+		}
+		if (array_key_exists($event, $this->stoppedPropagations)) return $this->stoppedPropagations[$event];
+		return NO;
+	}
+	/**
+	* 
+	* {@inheritdoc}
+	* @see \Devoir\Interfaces\DevoirEventInterface::consumeEvent()
+	*/
+	final public function consumeEvent($event = null)
+	{
+		if (isNull($event)){
+			$this->stoppedPropagations["all"] = true;
+		}
+		else{
+			$this->stoppedPropagations[$event] = true;
+		}
 	}
 	/**
 	 *
@@ -497,10 +529,13 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * @see \Devoir\Interfaces\DevoirEventInterface::dispatchEvent()
 	 */
 	final public function dispatchEvent($event)
-	{
+	{	
 		$listeners = $this->getListenersForEvent($event);
 		$exceptions = array();
 		foreach ($listeners as $listener) {
+			if ($this->isPropagationStopped($event) || $this->isPropagationStopped()) {
+				return $this;
+			}
 			if (is_string($listener['callback']) && isNull($listener['object'])) {
 				if (!in_array($listener['callback'], (array) $this->getImplementedListeners())) {
 					$exceptions[] = [$event, $listener['callback'], $this->fullyQualifiedController, "Callback not Implemented"];
@@ -546,9 +581,6 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 				} else {
 					$exceptions[] = [$event, $listener['callback'], $reflect->getName(), "Class not found"];
 				}
-			}
-			if ($this->isPropagationStopped()) {
-				break;
 			}
 		}
 		if (count($exceptions) == 1) {
@@ -630,26 +662,62 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	final protected function terminate(): void
 	{
 		$this->dispatchEvent(EVENT_ON_TERMINATE);
-		$this->stoppedPropagation = true;
+		die();
 	}
 	/**
-	 * Converts `dashed-value` to `camelCase`.
-	 * @param mixed|null $value
-	 * @return mixed
-	 */
-	private function _dashedToCamelCase($value)
+	* 
+	* {@inheritdoc}
+	* @see \Devoir\Interfaces\ControllerInterface::setView()
+	*/
+	public function setView(?string $view_frame = null, ?string $view_layout = null, ?string $view_class = null): ControllerInterface
 	{
-		$comp = "";
-		$varr = explode('-', $value);
-		if (count($varr) < 2) {
-			return $value;
+		if ($view_class <> "ignore"){
+			$this->view_class = $view_class ?? getConfig('app', 'default_view_class');
 		}
-		$comp .= $varr[0];
-		array_shift($varr);
-		foreach ($varr as $vr) {
-			$comp .= ucfirst($vr);
+		if ($view_frame <> "ignore"){
+			$this->view_frame = $view_frame ?? getConfig('app', 'default_view_frame');
 		}
-		return $comp;
+		if ($view_layout <> "ignore"){
+			$this->view_layout = $view_layout ?? getConfig('app', 'default_view_layout');
+		}
+		return $this;
+	}
+	
+	public function getView(): iterable
+	{
+		return [
+			'class' => $this->view_class,
+			'layout' => $this->view_layout,
+			'frame' => $this->view_frame
+		];
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ControllerInterface::setConfig()
+	 */
+	final public function setConfig($key, $value, $subkeys = null): ControllerInterface
+	{
+		$this->config = $this->config->set($key, $value, $subkeys);
+		return $this;
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ControllerInterface::getConfig()
+	 */
+	final public function getConfigData($key, $subkeys = null)
+	{
+		return $this->config->get($key, $subkeys);
+	}
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Devoir\Interfaces\ControllerInterface::getConfig()
+	 */
+	final public function getConfig(): Configuration
+	{
+		return $this->config;
 	}
 	/**
 	 *
