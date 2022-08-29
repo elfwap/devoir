@@ -1,6 +1,8 @@
 <?php
 namespace Devoir\Interfaces;
 
+use Devoir\Configuration;
+
 /**
  * View Interface, should be implemented by the view classes.
  * @namespace Devoir\Interfaces
@@ -72,10 +74,23 @@ interface ViewInterface
 	*/
 	public function getClass(): string;
 	/**
-	* 
-	* @param \Devoir\Interfaces\ControllerInterface $callback_controller
-	* 
-	* @return
-	*/
-	public function setCallback(ControllerInterface $callback_controller);
+	 * Sets Configuration data
+	 * @param string $key
+	 * @param mixed $value
+	 * @param string $subkeys
+	 * @return \Devoir\Interfaces\ViewInterface
+	 */
+	public function setConfig(string $key, $value, ?string $subkeys = null): ViewInterface;
+	/**
+	 * Gets Configuration data
+	 * @param string $key
+	 * @param string $subkeys
+	 * @return mixed|object|iterable
+	 */
+	public function getConfigData(?string $key, ?string $subkeys = null);
+	/**
+	 * Gets the configuration object
+	 * @return Configuration
+	 */
+	public function getConfig(): Configuration;
 }
