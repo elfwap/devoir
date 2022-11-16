@@ -70,7 +70,7 @@ interface ControllerInterface
 	 * @param string $subkeys
 	 * @return \Devoir\Interfaces\ControllerInterface
 	 */
-	public function setConfig(string $key, $value, ?string $subkeys = null): ControllerInterface;
+	public function setConfigData(string $key, $value, ?string $subkeys = null): ControllerInterface;
 	/**
 	 * Controller function to get Configuration data
 	 * @param string $key
@@ -83,4 +83,11 @@ interface ControllerInterface
 	 * @return Configuration
 	 */
 	public function getConfig(): Configuration;
+	/**
+	* Sets the callback configuration object
+	* @param Configuration $config
+	* 
+	* @return \Devoir\Interfaces\ControllerInterface
+	*/
+	public function setConfig(Configuration $config);
 }

@@ -34,7 +34,7 @@ class Router extends Devoir
 	private array $params;
 	/**
 	 * 
-	 * @var \Devoir\BasicRequest $bsr
+	 * @var Devoir\BasicRequest $bsr
 	*/
 	private BasicRequest $bsr;
 	/**
@@ -43,6 +43,7 @@ class Router extends Devoir
 	 */
 	public function __construct(?string $systemDir = null)
 	{
+		$this->bsr = new BasicRequest();
 		if(is_dir($systemDir)){
 			$routes = $systemDir . DIRECTORY_SEPARATOR . 'routes.php';
 			if(file_exists($routes)){
@@ -73,8 +74,11 @@ class Router extends Devoir
 	public function match(): bool
 	{
 		$controller_found = no;
+		$controller_exists = no;
 		$action_found = no;
+		$action_exists = no;
 		$params_found = no;
+		$params_exists = no;
 		$keys = array();
 		$ctrl = "";
 		$actn = "";
@@ -97,6 +101,7 @@ class Router extends Devoir
 			$kys = array_filter(explode(';', $key));
 			foreach ($kys as $kvalue) {
 				if (strpos($kvalue, 'c:=') === 0) {
+					$controller_exists = YES;
 					if (
 						((explode(':=', $kvalue)[1] == '%' && $pthexp[0] == '/') || 
 						explode(':=', $kvalue)[1] == '~' || 
@@ -113,27 +118,28 @@ class Router extends Devoir
 					
 				}
 				if (strpos($kvalue, 'a:=') === 0) {
+					$action_exists = YES;
 					if (count($pthexp) < 2) continue;
 					if (explode(':=', $kvalue)[1] == $pthexp[1] && $action_found == NO) {
 						$actn = $this->route[$key]['action'];
 						$action_found = yes;
 					}
 					elseif (preg_match(REG_EXP_PICKUP_PATH, $kvalue, $matches_pua) === 1 && $action_found == NO) {
+						if ($controller_exists && !$controller_found) continue;
 						$keys[$matches_pua[1]] = $pthexp[1];
 						$actn = $this->route[$key]['action'];
 						$action_found = yes;
 					}
 				}
-				else {
-					$actn = $this->route[$key]['action'];
-				}
 				if (strpos($kvalue, 'p:=') === 0) {
+					$params_exists = YES;
 					if (count($pthexp) < 3) continue;
 					if ((explode(':=', $kvalue)[1] == $pthexp[2] || strpos($pthexp[2], explode(':=', $kvalue)[1]) === 0) && $params_found == NO) {
 						$prms = $this->route[$key]['params'];
 						$params_found = yes;
 					}
 					elseif (preg_match(REG_EXP_PICKUP_PATH_II, $kvalue, $matches_pup) === 1 && $params_found == NO) {
+						if (($controller_exists && !$controller_found) || ($action_exists && !$action_found)) continue;
 						$matches_pupg = preg_grep('(^\d{1,2})', $matches_pup);
 						$prmsexp = explode('/', $pthexp[2], count($matches_pupg));
 						$pinc = 0;
@@ -145,18 +151,15 @@ class Router extends Devoir
 						$params_found = yes;
 					}
 				}
-				else {
-					$prms = $this->route[$key]['params'];
-				}
 				if (strpos($kvalue, 'q:=') === 0 && !empty($qryexp)) {
-					$controller_found = no;
-					$action_found = no;
-					$params_found = no;
+					$controller_found2 = no;
+					$action_found2 = no;
+					$params_found2 = no;
 					$qres = substr($kvalue, strpos($kvalue, '['));
 					$qres = trim($qres, '[]');
 					$qresexp = explode('/', $qres);
 					$qresexp = array_filter($qresexp);
-					if ((is_array($qryexp) && !empty($qryexp)) && (is_array($qresexp) && !empty($qresexp)) && $controller_found == NO) {
+					if ((is_array($qryexp) && !empty($qryexp)) && (is_array($qresexp) && !empty($qresexp)) && $controller_found2 == NO) {
 						if (
 							($qryexp[0] == '~' || $qresexp[0 == '*']) ||
 							($qresexp[0] == $qryexp[0])
@@ -165,26 +168,23 @@ class Router extends Devoir
 							array_shift($qryexp);
 							$ctrl = $this->route[$key]['controller'];
 							$controller_found = yes;
+							$controller_found2 = yes;
 						}
-						else {
-							$controller_found = yes;
-						}
-						if (preg_match(REG_EXP_PICKUP_PATH, $qresexp[0], $matches_pua2) === 1 && $action_found == NO) {
+						if (preg_match(REG_EXP_PICKUP_PATH, $qresexp[0], $matches_pua2) === 1 && $action_found2 == NO) {
 							foreach (preg_grep('(^\d{1,2})', $matches_pua2) as $pua2_value) {
 								if (array_key_exists(0, $qryexp) == YES) $keys[$pua2_value] = $qryexp[0];
 								$actn = $this->route[$key]['action'];
 								$action_found = yes;
+								$action_found2 = yes;
 								break;
 							}
 						}
-						elseif ($qresexp[0] == $qryexp[0] && $action_found == NO) {
+						elseif ($qresexp[0] == $qryexp[0] && $action_found2 == NO) {
 							$actn = $this->route[$key]['action'];
 							$action_found = yes;
+							$action_found2 = yes;
 						}
-						else {
-							$action_found = yes;
-						}
-						if (preg_match(REG_EXP_PICKUP_PATH_II, $qresexp[1], $matches_pup2) === 1 && $params_found == NO) {
+						if (preg_match(REG_EXP_PICKUP_PATH_II, $qresexp[1], $matches_pup2) === 1 && $params_found2 == NO) {
 							$matches_pup2g = preg_grep('(^\d{1,2})', $matches_pup2);
 							$pup2exp = [];
 							if (array_key_exists(1, $qryexp) == YES) $pup2exp = explode('/', $qryexp[1], count($matches_pup2g));
@@ -196,9 +196,7 @@ class Router extends Devoir
 							}
 							$prms = $this->route[$key]['params'];
 							$params_found = yes;
-						}
-						else {
-							$params_found = yes;
+							$params_found2 = yes;
 						}
 					}
 				}
@@ -240,8 +238,12 @@ class Router extends Devoir
 		else {
 			$this->params = explode('/', $prms);
 		}
-		if ($controller_found || $action_found || $params_found) return YES;
-		return NO;
+		if (($controller_found && $controller_exists) && ($action_found && $action_exists) && ($params_found && $params_exists)) return YES;
+		elseif (($action_found && $action_exists) && ($params_found && $params_exists) && !$controller_exists) return YES;
+		elseif (($params_found && $params_exists) && !$action_exists && !$controller_exists) return YES;
+		elseif (!$params_exists && ($action_found && $action_exists) && !$controller_exists) return YES;
+		elseif (!$params_exists && !$action_exists && ($controller_found && $controller_exists)) return YES;
+		else return NO;
 	}
 	/**
 	 * Returns the `Controller` `string` for routing.
@@ -282,26 +284,5 @@ class Router extends Devoir
 			'action' => $this->getAction(),
 			'params' => $this->getParams()
 		];
-	}
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Devoir\Devoir::Ancestors()
-	 */
-	protected function Ancestors(): array
-	{
-		$parent = parent::Ancestors();
-		array_push($parent, self::class);
-		return $parent;
-	}
-	/**
-	 * returns list of super classes that {$this} class extends
-	 * @return array
-	 */
-	public function getAncestors(): array
-	{
-		$ancest = $this->Ancestors();
-		array_pop($ancest);
-		return $ancest;
 	}
 }

@@ -74,15 +74,15 @@ interface ViewInterface
 	*/
 	public function getClass(): string;
 	/**
-	 * Sets Configuration data
+	 * Controller function to set Configuration data
 	 * @param string $key
 	 * @param mixed $value
 	 * @param string $subkeys
-	 * @return \Devoir\Interfaces\ViewInterface
+	 * @return \Devoir\Interfaces\ControllerInterface
 	 */
-	public function setConfig(string $key, $value, ?string $subkeys = null): ViewInterface;
+	public function setConfigData(string $key, $value, ?string $subkeys = null): ViewInterface;
 	/**
-	 * Gets Configuration data
+	 * Controller function to get Configuration data
 	 * @param string $key
 	 * @param string $subkeys
 	 * @return mixed|object|iterable
@@ -93,4 +93,11 @@ interface ViewInterface
 	 * @return Configuration
 	 */
 	public function getConfig(): Configuration;
+	/**
+	* Sets the callback configuration object
+	* @param Configuration $config
+	* 
+	* @return \Devoir\Interfaces\ControllerInterface
+	*/
+	public function setConfig(Configuration $config);
 }

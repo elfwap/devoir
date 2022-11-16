@@ -51,8 +51,16 @@ interface DevoirEventInterface
 	public function onTerminate(DevoirEventInterface $event);
 	/**
 	 * 
-	 * Returns True if current event is stopped.
+	 * When argument is supplied it checked if the event is stopped
+	 * otherwise the entire events
+	 * @param mixed $event event name
 	 * @return bool
 	 */
-	public function isPropagationStopped() : bool;
+	public function isPropagationStopped($event = null) : bool;
+	/**
+	* Stops the propagation of the specified event or entire events otherwise preventing its listeners from handling it/them
+	* @param mixed $event event name
+	* 
+	*/
+	public function consumeEvent($event = null);
 }

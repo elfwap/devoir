@@ -54,10 +54,10 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 	public function __construct(ControllerInterface $controller_callback, ?string $view_class = null, ?string $view_layout = null, ?string $view_frame = null)
 	{
 		$this->controller = $controller_callback;
+		$this->config = &$controller_callback->config;
 		if (!isNull($view_class)) $this->setClass($view_class);
 		if (!isNull($view_layout)) $this->setLayout($view_layout);
 		if (!isNull($view_frame)) $this->setFrame($view_frame);
-		$this->config = $controller_callback->getConfig();
 		$this->initialize();
 	}
 	final protected function initialize()
@@ -306,8 +306,8 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 		}
 		$class_name = ucfirst(strtolower($class_name)) . "View";
 		$class_name = $this->_dashedToCamelCase($class_name);
-		$filename = rtrim(getConfig('app', 'view.path'), DS) . DS . 'Classes' . DS . $class_name . '.php';
-		$classname = getConfig('app', 'view.namespace') . $class_name;
+		$filename = rtrim($this->getConfigData('app', 'view.path'), DS) . DS . 'Classes' . DS . $class_name . '.php';
+		$classname = $this->getConfigData('app', 'view.namespace') . $class_name;
 		if (!file_exists($filename)) {
 			if (getConfig('is_debug')) {
 				throw new MissingViewClassException([$class_name, "File [" . $filename . "] not found"]);
@@ -345,7 +345,7 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 			$layout_name = substr($name, 0, $pos);
 		}
 		$layout_name .= "_layout";
-		$filename = rtrim(getConfig('app', 'view.path'), DS) . DS . 'Layout' . DS . $layout_name . '.php';
+		$filename = rtrim($this->getConfigData('app', 'view.path'), DS) . DS . 'Layout' . DS . $layout_name . '.php';
 		if (!file_exists($filename)) {
 			if (getConfig('is_debug')) {
 				throw new MissingViewLayoutException([$layout_name, "File [" . $filename . "] not found"]);
@@ -377,7 +377,7 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 			$frame_name = substr($name, 0, $pos);
 		}
 		$frame_name .= "_frame";
-		$filename = rtrim(getConfig('app', 'view.path'), DS) . DS . 'Frame' . DS . $frame_name . '.php';
+		$filename = rtrim($this->getConfigData('app', 'view.path'), DS) . DS . 'Frame' . DS . $frame_name . '.php';
 		if (!file_exists($filename)) {
 			if (getConfig('is_debug')) {
 				throw new MissingViewFrameException([$frame_name, "File [" . $filename . "] not found"]);
@@ -399,34 +399,31 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 	}
 	final public function render()
 	{
-		$this->dispatchEvent(EVENT_VIEW_BEFORE_RENDER);
 		$this->controller->dispatchEvent(EVENT_CONTROLLER_BEFORE_MANIFEST);
+		$this->dispatchEvent(EVENT_VIEW_BEFORE_RENDER);
 		$this->dispatchEvent(EVENT_VIEW_BEFORE_LAYOUT);
 		ob_start();
 		extract($this->exported_vars);
 		require_once($this->viewLayoutFile);
 		$layout = ob_get_contents();
 		ob_end_clean();
-		$this->dispatchEvent(EVENT_VIEW_AFTER_LAYOUT);
+		(strpos($layout, '{{FRAME}}') >= 0) ? $layers = explode('{{FRAME}}', $layout) : $layers = [$layout, " "];
+		if (count($layers) >= 2) echo($layers[0]);
 		$this->dispatchEvent(EVENT_VIEW_BEFORE_FRAME);
-		ob_start();
 		include_once($this->viewFrameFile);
-		$frame = ob_get_contents();
-		ob_end_clean();
 		$this->dispatchEvent(EVENT_VIEW_AFTER_FRAME);
-		$render = (strpos($layout, '{{FRAME}}') >= 0) ? str_replace('{{FRAME}}', $frame, $layout) : $layout;
-		echo($render);
+		if (count($layers) >= 2) echo($layers[1]);
+		$this->dispatchEvent(EVENT_VIEW_AFTER_LAYOUT);
 		$this->dispatchEvent(EVENT_VIEW_AFTER_RENDER);
 		$this->controller->dispatchEvent(EVENT_CONTROLLER_AFTER_MANIFEST);
 	}
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ViewInterface::setConfig()
+	 * @see \Devoir\Interfaces\ViewInterface::setConfigData()
 	 */
-	final public function setConfig($key, $value, ?string $subkeys = null): ViewInterface
+	final public function setConfigData($key, $value, ?string $subkeys = null): ViewInterface
 	{
-		$this->config = $this->controller->getConfig();
 		$this->config = $this->config->set($key, $value, $subkeys);
 		return $this;
 	}
@@ -437,8 +434,18 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 	 */
 	final public function getConfigData($key, $subkeys = null)
 	{
-		$this->config = $this->controller->getConfig();
 		return $this->config->get($key, $subkeys);
+	}
+	/**
+	* 
+	* {@inheritDoc}
+	* @see \Devoir\Interfaces\ViewInterface::setConfig()
+	*/
+	final public function setConfig(Configuration $config) 
+	{
+		$this->config = $config;
+		$this->controller->config = &$this->config;
+		return $this;
 	}
 	/**
 	 * 
@@ -447,7 +454,6 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 	 */
 	final public function getConfig(): Configuration
 	{
-		$this->config = $this->controller->getConfig();
 		return $this->config;
 	}
 }

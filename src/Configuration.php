@@ -7,14 +7,14 @@ use \stdClass;
 /**
  * Configuration class, provides interface for retrieving and manipulating configurations at runtime.
  * @namespace Devoir
- * @author Muhammad Tahir Abdullahi
+ * @author Muhammad Tahir Abdullahi <muhammedtahirabdullahi@gmail.com>
  * @copyright Copyright (c) Elftech Inc.
  * @package elfwap/devoir
  * @license https://opensource.org/licenses/mit-license.php MIT License
  *        
  */
 
- class Configuration
+ class Configuration extends Devoir
  {
 	/**
 	 * @var array $config store configuration data as array.
@@ -31,9 +31,9 @@ use \stdClass;
 	public function __construct(string $systemDir = null)
 	{
 		$this->configs = new stdClass();
+		$config = array();
 		if(is_dir($systemDir)){
 			$configs = $systemDir . DIRECTORY_SEPARATOR . 'configs.php';
-			$config = array();
 			if(file_exists($configs)){
 				$configs = require($configs);
 				foreach ($configs as $key => $value) {
@@ -61,10 +61,9 @@ use \stdClass;
 	 * @param string $key
 	 * @param mixed|object $value
 	 * @param string|null $subkeys separated by `.` for lower elevation(s).
-	 * @return Configuration $this
+	 * @return Devoir\Configuration
 	 */
-	public function set(string $key, $value = null, string $subkeys = null): Configuration
-	{
+	public function set(string $key, $value = null, string $subkeys = null){
 		$jsonConfig = json_decode(json_encode($this->config));
 		$this->configs->{$key} = &$jsonConfig->{$key};
 		if(!isNull($subkeys) && !empty($subkeys)){
@@ -90,8 +89,7 @@ use \stdClass;
 	 * @param string|null $subkeys separated by `.` for lower elevation(s).
 	 * @return mixed|object
 	 */
-	public function get(string $key, string $subkeys = null)
-	{
+	public function get(string $key, string $subkeys = null){
 		$ro = new ReflectionObject($this->configs);
 		$rp = $ro->getProperties();
 		$ret = null;
@@ -126,8 +124,7 @@ use \stdClass;
 	 * @param int $type
 	 * @return array|object|string|false
 	 */
-	public function getAll(int $type)
-	{
+	public function getAll(int $type){
 		$ret = null;
 		if(count((new ReflectionObject($this->configs))->getProperties()) < 1){
 			$this->configs = json_decode(json_encode($this->config));

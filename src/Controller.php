@@ -82,7 +82,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * 
 	 * @var \Devoir\Configuration $config store loaded configuration data for current runtime.
 	 */
-	protected Configuration $config;
+	public Configuration $config;
 	/**
 	 * 
 	 * @var \stdClass $app
@@ -138,7 +138,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * @param array $params
 	 * @param mixed|null $systemDir
 	 */
-	final public function __construct($controller = null, $action = null, array $params = array(), $systemDir = null)
+	final public function __construct($controller = null, $action = null, array $params = array(), $systemDir = null, Configuration $cofigObj = null)
 	{
 		$this->ctrl = $controller;
 		$this->actn = $action;
@@ -146,7 +146,11 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$this->sysd = $systemDir;
 		$this->basic_response = new BasicResponse();
 		$this->basic_request = new BasicRequest();
-		$this->config = new Configuration($systemDir);
+		if (!isNull($cofigObj)) {
+			$this->config = &$cofigObj;
+		} else {
+			$this->setConfig(new Configuration($systemDir));
+		}
 		$this->app = $this->config->get('app');
 		$this->appController = $this->config->get('app', 'controller');
 		$this->appModel = $this->config->get('app', 'model');
@@ -258,9 +262,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 				}
 			}
 		}
-		$this->view_class = getConfig('app', 'default_view_class');
-		$this->view_frame = getConfig('app', 'default_view_frame');
-		$this->view_layout = getConfig('app', 'default_view_layout');
+		$this->view_class = $this->config->get('app', 'default_view_class');
+		$this->view_layout = $this->config->get('app', 'default_view_layout');
+		$this->view_frame = $this->config->get('app', 'default_view_frame');
 	}
 
 	/**
@@ -320,9 +324,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			}
 			//TODO - dispatch request to model
 			if ($runner instanceof ControllerInterface) {
-				$this->view = new View($runner, $this->view_class, null, null);
-				$this->view->setLayout($this->view_layout);
-				$this->view->setFrame($this->view_frame);
+				$this->view = new View($runner, $runner->view_class, null, null);
+				$this->view->setLayout($runner->view_layout);
+				$this->view->setFrame($runner->view_frame);
 				$this->view->exportVars($runner->getViewVars());
 				$this->view->render();
 			}
@@ -672,13 +676,16 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	public function setView(?string $view_frame = null, ?string $view_layout = null, ?string $view_class = null): ControllerInterface
 	{
 		if ($view_class <> "ignore"){
-			$this->view_class = $view_class ?? getConfig('app', 'default_view_class');
+			if (!strpos(strtolower($view_class), 'View')) $view_class = ucfirst(strtolower($view_class)) . 'View';
+			$this->view_class = $view_class ?? $this->getConfigData('app', 'default_view_class');
 		}
 		if ($view_frame <> "ignore"){
-			$this->view_frame = $view_frame ?? getConfig('app', 'default_view_frame');
+			if (!strpos(strtolower($view_frame), '_frame')) $view_frame = strtolower($view_frame) . '_frame';
+			$this->view_frame = $view_frame ?? $this->getConfigData('app', 'default_view_frame');
 		}
 		if ($view_layout <> "ignore"){
-			$this->view_layout = $view_layout ?? getConfig('app', 'default_view_layout');
+			if (!strpos(strtolower($view_layout), '_layout')) $view_layout = strtolower($view_layout) . '_layout';
+			$this->view_layout = $view_layout ?? $this->getConfigData('app', 'default_view_layout');
 		}
 		return $this;
 	}
@@ -694,9 +701,9 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ControllerInterface::setConfig()
+	 * @see \Devoir\Interfaces\ControllerInterface::setConfigData()
 	 */
-	final public function setConfig($key, $value, $subkeys = null): ControllerInterface
+	final public function setConfigData($key, $value, $subkeys = null): ControllerInterface
 	{
 		$this->config = $this->config->set($key, $value, $subkeys);
 		return $this;
@@ -709,6 +716,16 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	final public function getConfigData($key, $subkeys = null)
 	{
 		return $this->config->get($key, $subkeys);
+	}
+	/**
+	* 
+	* {@inheritDoc}
+	* @see \Devoir\Interfaces\ControllerInterface::setConfig()
+	*/
+	final public function setConfig(Configuration $config) 
+	{
+		$this->config = $config;
+		return $this;
 	}
 	/**
 	 * 
