@@ -18,39 +18,29 @@ class Application extends Devoir
 	 */
 	public function __construct(?string $systemDir = null)
 	{
-		global $config;
 		if(is_dir($systemDir)){
 			$constants = $systemDir . DIRECTORY_SEPARATOR . 'constants.php';
 			$functions = $systemDir . DIRECTORY_SEPARATOR . 'functions.php';
+			if(file_exists($constants)){
+				require_once $constants;
+			}
+			if(file_exists($functions)){
+				require_once $functions;
+			}
 		}
 		$devoirSystemDir = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'system';
 		if(is_dir($devoirSystemDir)){
 			$devoirConstants = $devoirSystemDir . DIRECTORY_SEPARATOR . 'constants.php';
 			$devoirFunctions = $devoirSystemDir . DIRECTORY_SEPARATOR . 'functions.php';
-			
+			if(file_exists($devoirConstants)) require_once $devoirConstants;
+			if(file_exists($devoirFunctions)) require_once $devoirFunctions;
 		}
-		if(file_exists($constants)){
-				require_once $constants;
-		}
-		if(file_exists($devoirConstants)) require_once $devoirConstants;
-		if (is_dir($systemDir)){	
-			if (!$config) {
-				$config = new Configuration($systemDir);
-			}
-		} else {
-			if (!$config) $config = new Configuration($devoirSystemDir);
-		}
-		if(file_exists($functions)){
-			require_once $functions;
-		}
-		if(file_exists($devoirFunctions)) require_once $devoirFunctions;
-		$configx = &$config;
 		$router = new Router($systemDir);
 		if ($router->match() == YES) {
-			$controller = new Controller($router->getController(), $router->getAction(), (array) $router->getParams(), $systemDir, $configx);
+			$controller = new Controller($router->getController(), $router->getAction(), (array) $router->getParams(), $systemDir);
 		}
 		else {
-			$controller = new Controller(null, null, [], $systemDir, $configx);
+			$controller = new Controller(null, null, [], $systemDir);
 		}
 		$controller->run();
 	}

@@ -32,7 +32,7 @@ interface ViewInterface
 	* Sets the layout file
 	* @param string $name filename without the extension name
 	* 
-	* @return object
+	* @return \Devoir\Interfaces\ViewInterface
 	*/
 	public function setLayout(string $name);
 	/**
@@ -45,7 +45,7 @@ interface ViewInterface
 	* Sets the frame file to the current view
 	* @param string $name
 	* 
-	* @return object
+	* @return \Devoir\Interfaces\ViewInterface
 	*/
 	public function setFrame(string $name);
 	/**
@@ -57,14 +57,14 @@ interface ViewInterface
 	/**
 	* Render the current view
 	* 
-	* @return object
+	* @return \Devoir\Interfaces\ViewInterface
 	*/
 	public function render();
 	/**
 	* Sets view class especially to handle view events
 	* @param string $class_name
 	* 
-	* @return object
+	* @return \Devoir\Interfaces\ViewInterface
 	*/
 	public function setClass(string $class_name);
 	/**
@@ -74,11 +74,24 @@ interface ViewInterface
 	*/
 	public function getClass(): string;
 	/**
+	* Sets the view's HTML title
+	* @param string $text
+	* 
+	* @return \Devoir\Interfaces\ViewInterface
+	*/
+	public function setTitle(string $text = "untitled");
+	/**
+	* Gets the view's HTML title
+	* 
+	* @return string
+	*/
+	public function getTitle(): string;
+	/**
 	 * Controller function to set Configuration data
 	 * @param string $key
 	 * @param mixed $value
 	 * @param string $subkeys
-	 * @return \Devoir\Interfaces\ControllerInterface
+	 * @return \Devoir\Interfaces\ViewInterface
 	 */
 	public function setConfigData(string $key, $value, ?string $subkeys = null): ViewInterface;
 	/**
@@ -97,7 +110,7 @@ interface ViewInterface
 	* Sets the callback configuration object
 	* @param Configuration $config
 	* 
-	* @return \Devoir\Interfaces\ControllerInterface
+	* @return \Devoir\Interfaces\ViewInterface
 	*/
 	public function setConfig(Configuration $config);
 }

@@ -49,4 +49,8 @@ return [
 			'database' => '',
 		],
 	],
+	'error' => [
+		'titles' => getResponseTitles(),
+		'codes' => getResponseCodes()
+	],
 ];

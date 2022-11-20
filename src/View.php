@@ -36,7 +36,7 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 	* @var string $fullyQualifiedView Holds the path of the Fully qualified view class (namespaced).
 	* 
 	*/
-	private ?string $viewClass = "", $viewLayout = "", $viewFrame = "", $fullyQualifiedView = "";
+	private ?string $viewClass = "", $viewLayout = "", $viewFrame = "", $viewTitle = "", $fullyQualifiedView = "";
 	
 	private ?string $viewLayoutFile, $viewFrameFile;
 	/**
@@ -309,7 +309,7 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 		$filename = rtrim($this->getConfigData('app', 'view.path'), DS) . DS . 'Classes' . DS . $class_name . '.php';
 		$classname = $this->getConfigData('app', 'view.namespace') . $class_name;
 		if (!file_exists($filename)) {
-			if (getConfig('is_debug')) {
+			if ($this->getConfigData('is_debug')) {
 				throw new MissingViewClassException([$class_name, "File [" . $filename . "] not found"]);
 			}
 			throw new NotFoundException(['View `' . $class_name . '`']);
@@ -341,13 +341,14 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 	*/
 	final public function setLayout(string $name)
 	{
+		$layout_name = null;
 		if ($pos = strpos($name, '_layout')) {
 			$layout_name = substr($name, 0, $pos);
 		}
 		$layout_name .= "_layout";
 		$filename = rtrim($this->getConfigData('app', 'view.path'), DS) . DS . 'Layout' . DS . $layout_name . '.php';
 		if (!file_exists($filename)) {
-			if (getConfig('is_debug')) {
+			if ($this->getConfigData('is_debug')) {
 				throw new MissingViewLayoutException([$layout_name, "File [" . $filename . "] not found"]);
 			}
 			throw new NotFoundException(['View layout file `' . $layout_name . '`']);
@@ -372,14 +373,14 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 	*/
 	final public function setFrame(string $name)
 	{
-		$frame_name = "";
+		$frame_name = null;
 		if ($pos = strpos($name, '_frame')) {
 			$frame_name = substr($name, 0, $pos);
 		}
 		$frame_name .= "_frame";
 		$filename = rtrim($this->getConfigData('app', 'view.path'), DS) . DS . 'Frame' . DS . $frame_name . '.php';
 		if (!file_exists($filename)) {
-			if (getConfig('is_debug')) {
+			if ($this->getConfigData('is_debug')) {
 				throw new MissingViewFrameException([$frame_name, "File [" . $filename . "] not found"]);
 			}
 			throw new NotFoundException(['View frame file `' . $frame_name . '`']);
@@ -397,6 +398,25 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 	{
 		return $this->viewFrame;
 	}
+	/**
+	* 
+	* {@inheritDoc}
+	* @see \Devoir\Interfaces\ViewInterface::setTitle()
+	*/
+	final public function setTitle(string $text = "untitled")
+	{
+		$this->viewTitle = $text;
+		return $this;
+	}
+	/**
+	* 
+	* {@inheritDoc}
+	* @see \Devoir\Interfaces\ViewInterface::getTitle()
+	*/
+	final public function getTitle(): string
+	{
+		return $this->viewTitle;
+	}
 	final public function render()
 	{
 		$this->controller->dispatchEvent(EVENT_CONTROLLER_BEFORE_MANIFEST);
@@ -407,6 +427,7 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 		require_once($this->viewLayoutFile);
 		$layout = ob_get_contents();
 		ob_end_clean();
+		if (strpos($layout, '{{TITLE}}') >= 0) $layout = str_replace('{{TITLE}}', $this->viewTitle, $layout);
 		(strpos($layout, '{{FRAME}}') >= 0) ? $layers = explode('{{FRAME}}', $layout) : $layers = [$layout, " "];
 		if (count($layers) >= 2) echo($layers[0]);
 		$this->dispatchEvent(EVENT_VIEW_BEFORE_FRAME);

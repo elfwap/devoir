@@ -64,6 +64,19 @@ interface ControllerInterface
 	*/
 	public function getView(): iterable;
 	/**
+	* Sets the current view's HTML title
+	* @param string $text
+	* 
+	* @return \Devoir\Interfaces\ControllerInterface
+	*/
+	public function setTitle(string $text = "untitled");
+	/**
+	* Gets the current view's HTML title
+	* 
+	* @return string
+	*/
+	public function getTitle(): string;
+	/**
 	 * Controller function to set Configuration data
 	 * @param string $key
 	 * @param mixed $value

@@ -124,7 +124,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	* @var string $view_frame
 	* 
 	*/
-	private ?string $view_class = null, $view_frame = null, $view_layout = null;
+	private ?string $view_class = null, $view_frame = null, $view_layout = null, $view_title;
 	/**
 	* 
 	* @var View $view
@@ -138,19 +138,15 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	 * @param array $params
 	 * @param mixed|null $systemDir
 	 */
-	final public function __construct($controller = null, $action = null, array $params = array(), $systemDir = null, Configuration $cofigObj = null)
+	final public function __construct($controller = null, $action = null, array $params = array(), $systemDir = null)
 	{
 		$this->ctrl = $controller;
 		$this->actn = $action;
 		$this->prms = $params;
 		$this->sysd = $systemDir;
+		$this->setConfig(new Configuration($systemDir));
 		$this->basic_response = new BasicResponse();
 		$this->basic_request = new BasicRequest();
-		if (!isNull($cofigObj)) {
-			$this->config = &$cofigObj;
-		} else {
-			$this->setConfig(new Configuration($systemDir));
-		}
 		$this->app = $this->config->get('app');
 		$this->appController = $this->config->get('app', 'controller');
 		$this->appModel = $this->config->get('app', 'model');
@@ -327,6 +323,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 				$this->view = new View($runner, $runner->view_class, null, null);
 				$this->view->setLayout($runner->view_layout);
 				$this->view->setFrame($runner->view_frame);
+				$this->view->setTitle($runner->getTitle());
 				$this->view->exportVars($runner->getViewVars());
 				$this->view->render();
 			}
@@ -355,7 +352,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		$filename = rtrim($this->appController->path, DS) . DS . $controllerName . '.php';
 		$classname = $this->appController->namespace . $controllerName;
 		if (!file_exists($filename)) {
-			if (getConfig('is_debug')) {
+			if ($this->getConfigData('is_debug')) {
 				throw new MissingControllerException([$controllerName, "File [" . $filename . "] not found"]);
 			}
 			throw new NotFoundException([$this->path]);
@@ -380,7 +377,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	{
 		$actionName = $this->_dashedToCamelCase($actionName);
 		if ($this->fullyQualifiedController == $this->config->get('app', 'controller.namespace') . $this->config->get('app', 'default_controller') && $this->config->get('app', 'default_controller')) {
-			if (getConfig('is_debug')) {
+			if ($this->getConfigData('is_debug')) {
 				throw new MissingControllerException([$this->controller, "URI not resolved"]);
 			}
 			throw new BadRequestException(["URI not resolved"]);
@@ -388,7 +385,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		if (class_exists($this->fullyQualifiedController)) {
 			$reflect = new ReflectionClass($this->fullyQualifiedController);
 			if (!$reflect->hasMethod($actionName)) {
-				if (getConfig('is_debug')) {
+				if ($this->getConfigData('is_debug')) {
 					throw new MissingActionException([$actionName, $this->controller, "Method not defined"]);
 				}
 				throw new NotFoundException([$this->path]);
@@ -699,6 +696,25 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 		];
 	}
 	/**
+	* 
+	* {@inheritDoc}
+	* @see \Devoir\Interfaces\ControllerInterface::setTitle()
+	*/
+	public function setTitle(string $text = 'untitled')
+	{
+		$this->view_title = $text;
+		return $this;
+	}
+	/**
+	* 
+	* {@inheritDoc}
+	* @see \Devoir\Interfaces\ControllerInterface::getTitle()
+	*/
+	public function getTitle(): string
+	{
+		return $this->view_title ?? "untitled";
+	}
+	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Devoir\Interfaces\ControllerInterface::setConfigData()
@@ -711,7 +727,7 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Devoir\Interfaces\ControllerInterface::getConfig()
+	 * @see \Devoir\Interfaces\ControllerInterface::getConfigData()
 	 */
 	final public function getConfigData($key, $subkeys = null)
 	{

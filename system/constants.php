@@ -62,6 +62,15 @@ define('MISSING_INHERITANCE_EXCEPTION_CODE', 1005);
 define('MISSING_VIEW_CLASS_EXCEPTION_CODE', 1006);
 define('MISSING_VIEW_FRAME_EXCEPTION_CODE', 1007);
 define('MISSING_VIEW_LAYOUT_EXCEPTION_CODE', 1008);
+#Titles for above codes
+define('DEVOIR_EXCEPTION_TTLE', 'Devoir Exception');
+define('MISSING_CONTROLLER_EXCEPTION_TTLE', 'Missing Controller Exception');
+define('MISSING_ACTION_EXCEPTION_TTLE', 'Missing Action Exception');
+define('EVENT_LISTENER_EXCEPTION_TTLE', 'Event-Listener Exception');
+define('MISSING_INHERITANCE_EXCEPTION_TTLE', 'Missing Inheritance Exception');
+define('MISSING_VIEW_CLASS_EXCEPTION_TTLE', 'Missing View-Class Exception');
+define('MISSING_VIEW_FRAME_EXCEPTION_TTLE', 'Missing View-Frame Exception');
+define('MISSING_VIEW_LAYOUT_EXCEPTION_TTLE', 'Missing View-Layout Exception');
 #FOR CLIENT REQUESTS
 define('BAD_REQUEST_EXCEPTION_CODE', 1400);
 define('UNAUTHORIZED_EXCEPTION_CODE', 1401);

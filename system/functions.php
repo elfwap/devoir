@@ -48,3 +48,30 @@ function isNull(mixed $value): bool{
 	return ($value === null);
 }
 
+function getResponseTitles($code = null) {
+	$lists = [];
+	foreach (get_defined_constants() as $k => $gdc) {
+		if (strpos($k, 'RESPONSE_CODE_') === 0) {
+			$lists[$gdc] = ucwords(implode(' ', explode('_', strtolower(substr($k, strlen('RESPONSE_CODE_'))))));
+		}
+	}
+	if (is_int($code)) {
+		if (array_key_exists($code, $lists)) return $lists[$code];
+	}
+	return $lists;
+}
+
+function getResponseCodes($title = null) {
+	$lists = [];
+	foreach (get_defined_constants() as $k => $gdc) {
+		if (strpos($k, 'RESPONSE_CODE_') === 0) {
+			$lists[$k] = $gdc;
+		}
+	}
+	if (is_string($title)) {
+		$key = 'RESPONSE_CODE_' . strtoupper(str_replace(' ', '_', $title));
+		if (array_key_exists($key, $lists)) return $lists[$key];
+	}
+	return $lists;
+}
+
