@@ -275,6 +275,10 @@ define('EVENT_VIEW_BEFORE_LAYOUT', 'beforeLayout');
 define('EVENT_VIEW_AFTER_LAYOUT', 'afterLayout');
 define('EVENT_VIEW_BEFORE_FRAME', 'beforeFrame');
 define('EVENT_VIEW_AFTER_FRAME', 'afterFrame');
+define('EVENT_MODEL_BEFORE_SAVE', 'beforeSave');
+define('EVENT_MODEL_AFTER_SAVE', 'afterSave');
+define('EVENT_MODEL_BEFORE_DISPATCH', 'beforeDispatch');
+define('EVENT_MODEL_AFTER_DISPATCH', 'afterDispatch');
 //REGULAR EXPRESSION CONSTANTS
 define('REG_EXP_PICKUP_PATH', '(\{(\d{1,2})\})');
 define('REG_EXP_PICKUP_PATH_II', '(\{(\d{1,2})\}(\{(\d{1,2})\}(\{(\d{1,2})\})?)?)');

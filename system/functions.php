@@ -3,11 +3,12 @@
 use Devoir\Devoir;
 use Devoir\Controller;
 use Devoir\View;
+use Devoir\Model;
 use Devoir\Configuration;
 
 if(!function_exists("isController")){
 	/**
-	 * Checks whether the value of argument passed `is a` Devoir\Controller.
+	 * Checks whether the value of argument passed `is a` Devoir\Controller or inherits it.
 	 * @param mixed|object $component
 	 * @return bool
 	 */
@@ -17,13 +18,23 @@ if(!function_exists("isController")){
        
     }
 }
-/* if(!function_exists("isModel")){
+if(!function_exists("isModel")){
+	/**
+	 * Checks whether the passed argument `is a` Devoir\Model or inherits it.
+	 * @param mixed|object $component
+	 * @return bool
+	 */
 	function isModel($component): bool
 	{
 		return is_a($component, Model::class, true);
 	}
-} */
+}
 if(!function_exists("isView")){
+	/**
+	 * Checks whether the passed argument `is a` Deovir\View or inherits it.
+	 * @param mixed|object $component
+	 * @return bool
+	 */
 	function isView($component): bool
 	{
 		return is_a($component, View::class, true);
