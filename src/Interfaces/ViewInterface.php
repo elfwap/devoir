@@ -57,9 +57,9 @@ interface ViewInterface
 	/**
 	* Render the current view
 	* 
-	* @return \Devoir\Interfaces\ViewInterface
+	* @return void
 	*/
-	public function render();
+	public function render(): void;
 	/**
 	* Sets view class especially to handle view events
 	* @param string $class_name

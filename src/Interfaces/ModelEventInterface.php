@@ -10,7 +10,27 @@ namespace Devoir\Interfaces;
  * @license https://opensource.org/licenses/mit-license.php MIT License
  *        
  */
-interface ModelEventInterface
+interface ModelEventInterface extends DevoirEventInterface
 {
+	/**
+	 * Triggered before data is saved
+	 * @param ModelEventInterface $event
+	 */
+	public function beforeSave(ModelEventInterface $event);
+	/**
+	 * Triggered after data is saved
+	 * @param ModelEventInterface $event
+	 */
+	public function afterSave(ModelEventInterface $event);
+	/**
+	 * Triggered before the request data is being dispatched to the current model
+	 * @param ModelEventInterface $event
+	 */
+	public function beforeDispatch(ModelEventInterface $event);
+	/**
+	 * Triggered after the request data is being dispatched to the current model
+	 * @param ModelEventInterface $event
+	 */
+	public function afterDispatch(ModelEventInterface $event);
 }
 
