@@ -275,10 +275,8 @@ class Controller extends Devoir implements ControllerInterface, ControllerEventI
 			foreach ($var_name as $vk => $vn) {
 				$this->viewVars[$vk] = $vn;
 			}
-			//$this->view->exportVars($var_name);
 		}else {
 			$this->viewVars[$var_name] = $var_value;
-			//$this->view->exportVars($this->viewVars);
 		}
 		return $this;
 	}

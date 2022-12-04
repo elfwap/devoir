@@ -10,6 +10,15 @@ use \ReflectionFunction;
 use \ReflectionMethod;
 use \Closure;
 
+/**
+ * Main View class.
+ * @namespace Devoir
+ * @author Muhammad Tahir Abdullahi <muhammedtahirabdullahi@gmail.com>
+ * @copyright Copyright (c) [2022] Elftech Inc. <https://github.com/elfwap/devoir>
+ * @package elfwap/devoir
+ * @license https://opensource.org/licenses/mit-license.php MIT License
+ *
+ */
 class View extends Devoir implements ViewEventInterface, ViewInterface
 {
 	/**

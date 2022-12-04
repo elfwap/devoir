@@ -3,6 +3,10 @@ namespace Devoir;
 
 use Devoir\Interfaces\ModelInterface;
 use Devoir\Interfaces\ModelEventInterface;
+use \ReflectionClass;
+use \ReflectionFunction;
+use \ReflectionMethod;
+use \Closure;
 
 /**
  * Main Model class.
@@ -15,7 +19,27 @@ use Devoir\Interfaces\ModelEventInterface;
  */
 class Model extends Devoir implements ModelInterface, ModelEventInterface
 {
-
+	/**
+	 *
+	 * @var array
+	 */
+	protected array $_eventListeners = array();
+	/**
+	 *
+	 * @var array $stoppedPropagations
+	 */
+	private array $stoppedPropagations = [];
+	/**
+	 *
+	 * @var BasicRequest $basic_request
+	 */
+	protected BasicRequest $basic_request;
+	/**
+	 *
+	 * @var BasicResponse $basic_response
+	 */
+	protected BasicResponse $basic_response;
+	
 	/**
 	 */
 	public function __construct()
@@ -130,8 +154,14 @@ class Model extends Devoir implements ModelInterface, ModelEventInterface
 	 */
 	public function getImplementedListeners()
 	{
-
-		// TODO - Insert your code here
+		return [
+			EVENT_ON_INITIALIZE,
+			EVENT_ON_TERMINATE,
+			EVENT_MODEL_BEFORE_SAVE,
+			EVENT_MODEL_AFTER_SAVE,
+			EVENT_MODEL_BEFORE_DISPATCH,
+			EVENT_MODEL_AFTER_DISPATCH
+		];
 	}
 
 	/**
@@ -216,10 +246,14 @@ class Model extends Devoir implements ModelInterface, ModelEventInterface
 	 *
 	 * @see \Devoir\Interfaces\DevoirEventInterface::consumeEvent()
 	 */
-	public function consumeEvent($event = null)
+	final public function consumeEvent($event = null)
 	{
-
-		// TODO - Insert your code here
+		if (isNull($event)){
+			$this->stoppedPropagations["all"] = true;
+		}
+		else{
+			$this->stoppedPropagations[$event] = true;
+		}
 	}
 
 	/**
@@ -238,10 +272,9 @@ class Model extends Devoir implements ModelInterface, ModelEventInterface
 	 *
 	 * @see \Devoir\Interfaces\DevoirEventInterface::getListenersForEvent()
 	 */
-	public function getListenersForEvent($event)
+	final public function getListenersForEvent($event): iterable
 	{
-
-		// TODO - Insert your code here
+		return $this->_eventListeners[$event] ?? [];
 	}
 
 	/**
@@ -249,10 +282,28 @@ class Model extends Devoir implements ModelInterface, ModelEventInterface
 	 *
 	 * @see \Devoir\Interfaces\DevoirEventInterface::registerListener()
 	 */
-	public function registerListener($event, $callback, $object = null)
+	final public function registerListener($event, $callback, $object = null)
 	{
-
-		// TODO - Insert your code here
+		$this->_eventListeners[$event][] = ['callback' => $callback, 'object' => $object];
+		return $this;
+	}
+	/**
+	 * @return null
+	 */
+	final protected function initialize()
+	{
+		$this->registerListener(EVENT_ON_INITIALIZE, EVENT_ON_INITIALIZE);
+		$this->registerListener(EVENT_ON_INITIALIZE, EVENT_ON_INITIALIZE, self::class);
+		$this->registerListener(EVENT_ON_TERMINATE, EVENT_ON_TERMINATE);
+		$this->registerListener(EVENT_ON_TERMINATE, EVENT_ON_TERMINATE, self::class);
+	}
+	/**
+	 * Terminates the process from the current model.
+	 */
+	final protected function terminate(): void
+	{
+		$this->dispatchEvent(EVENT_ON_TERMINATE);
+		die();
 	}
 }
 
