@@ -417,7 +417,7 @@ class View extends Devoir implements ViewEventInterface, ViewInterface
 	{
 		return $this->viewTitle;
 	}
-	final public function render()
+	final public function render(): void
 	{
 		$this->controller->dispatchEvent(EVENT_CONTROLLER_BEFORE_MANIFEST);
 		$this->dispatchEvent(EVENT_VIEW_BEFORE_RENDER);
