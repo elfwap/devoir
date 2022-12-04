@@ -32,5 +32,40 @@ interface ModelEventInterface extends DevoirEventInterface
 	 * @param ModelEventInterface $event
 	 */
 	public function afterDispatch(ModelEventInterface $event);
+	/**
+	 * 
+	 * @param ModelEventInterface $event
+	 */
+	public function afterFind(ModelEventInterface $event);
+	/**
+	 * 
+	 * @param ModelEventInterface $event
+	 */
+	public function beforeInsert(ModelEventInterface $event);
+	/**
+	 * 
+	 * @param ModelEventInterface $event
+	 */
+	public function afterInsert(ModelEventInterface $event);
+	/**
+	 * 
+	 * @param ModelEventInterface $event
+	 */
+	public function beforeUpdate(ModelEventInterface $event);
+	/**
+	 * 
+	 * @param ModelEventInterface $event
+	 */
+	public function afterUpdate(ModelEventInterface $event);
+	/**
+	 * 
+	 * @param ModelEventInterface $event
+	 */
+	public function beforeDelete(ModelEventInterface $event);
+	/**
+	 * 
+	 * @param ModelEventInterface $event
+	 */
+	public function afterDelete(ModelEventInterface $event);
 }
 
