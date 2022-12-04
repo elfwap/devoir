@@ -44,6 +44,7 @@ class Router extends Devoir
 	public function __construct(?string $systemDir = null)
 	{
 		$this->bsr = new BasicRequest();
+		$this->route = array();
 		if(is_dir($systemDir)){
 			$routes = $systemDir . DIRECTORY_SEPARATOR . 'routes.php';
 			if(file_exists($routes)){
@@ -56,7 +57,6 @@ class Router extends Devoir
 		$devoirSystemDir = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'system';
 		if(is_dir($devoirSystemDir)){
 			$devoirRoutes = $devoirSystemDir . DIRECTORY_SEPARATOR . 'routes.php';
-			$this->route = array();
 			if(file_exists($devoirRoutes)){
 				$devoirRoutes = require($devoirRoutes);
 				foreach ($devoirRoutes as $key => $value) {
