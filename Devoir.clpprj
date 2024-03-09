@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project name="C:\Users\User\eclipse-workspace\php2021\Devoir\Devoir.clpprj">
+ <settings>
+  <PM_URL><![CDATA[http://localhostC:/Users/User/eclipse-workspace/php2021/Devoir]]></PM_URL>
+  <PM_HOME_URL><![CDATA[http://localhostC:/Users/User/eclipse-workspace/php2021/Devoir]]></PM_HOME_URL>
+  <PM_LIBS><![CDATA[]]></PM_LIBS>
+  <PM_FTP_CONNECTION><![CDATA[]]></PM_FTP_CONNECTION>
+  <PM_FTP_DIR><![CDATA[]]></PM_FTP_DIR>
+  <PM_FTP_UPLOAD_ON_SAVE><![CDATA[INT:0]]></PM_FTP_UPLOAD_ON_SAVE>
+ </settings>
+ <removed value=";"/>
+ <added value=""/>
+ <lastopfiles>
+  <lastactivefile name=""/>
+ </lastopfiles>
+ <todoblock>
+  <todofile name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Controller.php">
+   <todo pos="4;320" name="TODO - dispatch request to model"/>
+  </todofile>
+ </todoblock>
+ <dbgurls/>
+ <filescache>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\vendor\composer\platform_check.php" crc="1627510176567"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\vendor\composer\InstalledVersions.php" crc="1627510176520"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\vendor\composer\installed.php" crc="1631035194680"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\vendor\composer\installed.json" crc="1630645617945"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\vendor\composer\ClassLoader.php" crc="1627510176598"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\vendor\composer\autoload_static.php" crc="1661667940121"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\vendor\composer\autoload_real.php" crc="1631095579651"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\vendor\composer\autoload_psr4.php" crc="1630645618013"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\vendor\composer\autoload_namespaces.php" crc="1631045619907"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\vendor\composer\autoload_classmap.php" crc="1661667940117"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\vendor\autoload.php" crc="1627510176598"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\tests\_support\Helper\Unit.php" crc="1627517977322"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\tests\_support\Helper\Functional.php" crc="1627517979075"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\tests\_support\Helper\Acceptance.php" crc="1627517979113"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\tests\_support\_generated\UnitTesterActions.php" crc="1627517979028"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\tests\_support\_generated\FunctionalTesterActions.php" crc="1627517979090"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\tests\_support\_generated\AcceptanceTesterActions.php" crc="1627517980349"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\tests\_support\UnitTester.php" crc="1627517978256"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\tests\_support\FunctionalTester.php" crc="1627517979090"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\tests\_support\AcceptanceTester.php" crc="1627517980333"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\tests\unit.suite.yml" crc="1627517979044"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\tests\functional.suite.yml" crc="1627517979090"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\tests\acceptance.suite.yml" crc="1627517980365"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\system\routes.php" crc="1637773119686"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\system\functions.php" crc="1645595582943"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\system\constants.php" crc="1661671740184"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\system\configs.php" crc="1645821117761"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Interfaces\ViewInterface.php" crc="1661767489911"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Interfaces\ViewEventInterface.php" crc="1645631492210"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Interfaces\ResponseInterface.php" crc="1637594753499"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Interfaces\RequestInterface.php" crc="1661640885076"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Interfaces\DevoirEventInterface.php" crc="1637598636565"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Interfaces\ControllerInterface.php" crc="1661765590530"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Interfaces\ControllerEventInterface.php" crc="1645630613923"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\Server5XXException.php" crc="1637642767127"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\Redirect3XXException.php" crc="1637642602265"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\NotFoundException.php" crc="1637601943698"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\MissingViewLayoutException.php" crc="1645800929915"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\MissingViewFrameException.php" crc="1645800911091"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\MissingViewClassException.php" crc="1645800643768"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\MissingInheritanceException.php" crc="1637601779994"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\MissingControllerException.php" crc="1637601593801"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\MissingActionException.php" crc="1637601472174"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\ForbiddenException.php" crc="1637644378819"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\EventListenerException.php" crc="1637601309381"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\DevoirException.php" crc="1637601170156"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\Client4XXException.php" crc="1637600887599"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Exception\BadRequestException.php" crc="1637600701193"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\View.php" crc="1661767702830"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Router.php" crc="1661641829142"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Devoir.php" crc="1637643204975"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Controller.php" crc="1661769289843"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Configuration.php" crc="1661640274025"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\BasicResponse.php" crc="1661641217382"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\BasicRequest.php" crc="1661640539665"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\src\Application.php" crc="1637600416657"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\.settings\org.eclipse.wst.common.project.facet.core.xml" crc="1627318265642"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\.github\workflows\php.yml" crc="1627508716218"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\.github\workflows\label.yml" crc="1627522631405"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\.github\workflows\greetings.yml" crc="1627537256346"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\.github\workflows\codacy-analysis.yml" crc="1627761429632"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\.github\labeler.yml" crc="1627522631401"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\index.php" crc="1631116119393"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\composer.json" crc="1631095459432"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\codeception.yml" crc="1627517877957"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\.travis.yml" crc="1627761429660"/>
+  <file name="C:\Users\User\eclipse-workspace\php2021\Devoir\.htaccess" crc="1628340908923"/>
+ </filescache>
+</project>
